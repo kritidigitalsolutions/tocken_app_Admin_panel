@@ -35,6 +35,13 @@ exports.verifyOTP = async (req, res) => {
     }
 
     // 🔥 Verify Firebase Token
+    if (!admin) {
+      return res.status(503).json({ 
+        message: "Firebase authentication not available. Please configure Firebase credentials.",
+        note: "Add FIREBASE_SERVICE_ACCOUNT to .env or serviceAccountKey.json"
+      });
+    }
+
     const decoded = await admin.auth().verifyIdToken(idToken);
 
     const phone = decoded.phone_number;
