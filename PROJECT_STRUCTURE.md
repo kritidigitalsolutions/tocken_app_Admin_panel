@@ -2,12 +2,44 @@
 
 **Project**: Demo Real Estate Site  
 **Date**: January 12, 2026  
-**Last Updated**: January 14, 2026  
-**Last Update**: Cleanup & Streamlining - Removed user routes & consolidated components
+**Last Updated**: January 15, 2026  
+**Last Update**: Security & Firebase Configuration - Environment-based credentials
 
 ---
 
-## 📅 Recent Changes (January 14, 2026)
+## 📅 Recent Changes Summary
+
+### January 15, 2026 - Security & Firebase Configuration
+
+#### 🔐 Security Improvements
+- **Added**: `.gitignore` file with comprehensive exclusions
+  - Prevents sensitive files from being committed
+  - Excludes: `node_modules/`, `.env`, Firebase credentials, build artifacts, IDE configs
+  - Protects: `backend/firebase/serviceAccountKey.json`
+
+#### 🗑️ Removed Items
+- **Deleted**: `backend/firebase/serviceAccountKey.json` from git history
+  - Removed from all commits using `git filter-branch`
+  - File still exists locally but no longer tracked by git
+  - GitHub Push Protection detected and blocked the secret
+
+#### ✏️ Modified / Updated Files
+- **Updated**: `backend/config/firebase.js`
+  - Changed from static file import to dynamic environment-based loading
+  - Now supports two credential sources:
+    1. Environment variable: `FIREBASE_SERVICE_ACCOUNT` (JSON string from .env)
+    2. Local file fallback: `backend/firebase/serviceAccountKey.json` (if exists)
+  - Added graceful error handling for missing credentials
+  - Added `path` and `fs` module imports for file existence checks
+
+- **Updated**: `backend/controllers/auth.controller.js`
+  - Added Firebase availability check
+  - Improved error handling for Firebase OTP functionality
+  - Added 7 lines of code for enhanced error handling
+
+---
+
+## 📅 Previous Changes (January 14, 2026)
 
 ### 🗑️ Deleted / Removed Items
 
