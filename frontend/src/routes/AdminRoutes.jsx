@@ -11,6 +11,10 @@ import ProtectedRoute from "../components/common/ProtectedRoute";
 // for properties and leads
 import Properties from "../pages/admin/properties/Properties";
 import Leads from "../pages/admin/leads/Leads";
+// for bookmarks
+import Bookmarks from "../pages/admin/bookmarks/Bookmarks";
+// for feedbacks
+import Feedbacks from "../pages/admin/feedbacks/Feedbacks";
 
 
 const AdminRoutes = () => {
@@ -29,6 +33,8 @@ const AdminRoutes = () => {
         <Route path="legal" element={<LegalPages />} />
         <Route path="properties" element={<Properties />} />
         <Route path="leads" element={<Leads />} />
+        <Route path="bookmarks" element={<Bookmarks />} />
+        <Route path="feedbacks" element={<Feedbacks />} />
         
 
       </Route>

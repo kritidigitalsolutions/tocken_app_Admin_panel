@@ -1,5 +1,6 @@
 const Banner = require("../models/Banner.model");
 
+// GET all banners
 exports.getBanners = async (req, res) => {
   try {
     const banners = await Banner.find();
@@ -13,108 +14,94 @@ exports.getBanners = async (req, res) => {
   }
 };
 
+// CREATE banner
 exports.createBanner = async (req, res) => {
   try {
-    let { title, status, redirectUrl } = req.body;
-
-    status =
-      status?.toLowerCase() === "active" ? "Active" : "Inactive";
-
-    if (!req.file) {
-      return res.status(400).json({ message: "Image required" });
-    }
-
-    // For Cloudinary storage, use req.file.path or req.file.secure_url
-    const imageUrl = req.file.path || req.file.secure_url;
+    const { title, link, isActive } = req.body;
+    const image = req.file?.path || "";
 
     const banner = await Banner.create({
       title,
-      status,
-      redirectUrl,
-      image: imageUrl
+      link,
+      image,
+      isActive: isActive === "true" || isActive === true
     });
 
     res.status(201).json({
       success: true,
+      message: "Banner created successfully",
       banner
     });
   } catch (error) {
     console.error("Create banner error:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
+// UPDATE banner
 exports.updateBanner = async (req, res) => {
   try {
-    const { title, status, redirectUrl } = req.body;
-
-    const banner = await Banner.findById(req.params.id);
-    if (!banner) {
-      return res.status(404).json({ message: "Banner not found" });
-    }
-
-    if (title) banner.title = title;
-    if (redirectUrl !== undefined) banner.redirectUrl = redirectUrl;
-    if (status) banner.status = status;
+    const { title, link, isActive } = req.body;
+    const updateData = { title, link };
     
-    // Update image only if a new one is provided
     if (req.file) {
-      const imageUrl = req.file.path || req.file.secure_url;
-      banner.image = imageUrl;
+      updateData.image = req.file.path;
+    }
+    if (isActive !== undefined) {
+      updateData.isActive = isActive === "true" || isActive === true;
     }
 
-    await banner.save();
+    const banner = await Banner.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+
+    if (!banner) {
+      return res.status(404).json({ success: false, message: "Banner not found" });
+    }
 
     res.json({
       success: true,
+      message: "Banner updated successfully",
       banner
     });
   } catch (error) {
     console.error("Update banner error:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-
+// TOGGLE banner status
 exports.toggleBannerStatus = async (req, res) => {
   try {
-    console.log("🔄 Toggle banner request for ID:", req.params.id);
-    
     const banner = await Banner.findById(req.params.id);
+    
     if (!banner) {
-      console.log("❌ Banner not found:", req.params.id);
-      return res.status(404).json({ 
-        success: false,
-        message: "Banner not found" 
-      });
+      return res.status(404).json({ success: false, message: "Banner not found" });
     }
 
-    const oldStatus = banner.status;
-    banner.status = banner.status === "Active" ? "Inactive" : "Active";
+    banner.isActive = !banner.isActive;
     await banner.save();
-
-    console.log(`✅ Banner toggled: ${oldStatus} → ${banner.status}`);
 
     res.json({
       success: true,
-      message: `Banner status changed to ${banner.status}`,
-      status: banner.status,
+      message: `Banner ${banner.isActive ? "activated" : "deactivated"} successfully`,
       banner
     });
   } catch (error) {
-    console.error("❌ Toggle banner status error:", error);
-    res.status(500).json({ 
-      success: false,
-      message: error.message 
-    });
+    console.error("Toggle banner error:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
+// DELETE banner
 exports.deleteBanner = async (req, res) => {
   try {
     const banner = await Banner.findByIdAndDelete(req.params.id);
+
     if (!banner) {
-      return res.status(404).json({ message: "Banner not found" });
+      return res.status(404).json({ success: false, message: "Banner not found" });
     }
 
     res.json({
@@ -123,7 +110,7 @@ exports.deleteBanner = async (req, res) => {
     });
   } catch (error) {
     console.error("Delete banner error:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

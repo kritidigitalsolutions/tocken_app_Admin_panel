@@ -1,24 +1,6 @@
-// const Plan = require("../../models/plans.model");
-
-// exports.getActivePlans = async (req, res) => {
-//   try {
-//     const plans = await Plan.find({ isActive: true });
-
-//     res.status(200).json({
-//       success: true,
-//       plans
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       success: false,
-//       message: "Unable to fetch plans"
-//     });
-//   }
-// };
-
-const Plan = require("../../models/plans.model");
-const FAQ = require("../../models/faq.model");
-const User = require("../../models/user.model");
+const Plan = require("../models/plans.model");
+const FAQ = require("../models/faq.model");
+const User = require("../models/user.model");
 
 exports.getPlansAndFAQs = async (req, res) => {
   const { userType } = req.query;

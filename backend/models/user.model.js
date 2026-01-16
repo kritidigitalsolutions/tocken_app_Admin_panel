@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true
+      default: "User"
     },
 
     phone: {
@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
         "CO_LIVING",
         "PG_SEEKER"
       ],
-      required: true
+      default: "BUYER"
     },
 
     isBlocked: {
@@ -37,11 +37,22 @@ const userSchema = new mongoose.Schema(
       default: false
     },
 
+    gstNumber: {
+      type: String,
+      default: null
+    },
+
     activePlan: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Plan",
       default: null
-    }
+    },
+
+    // Bookmarked/Favorite properties
+    bookmarks: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Property"
+    }]
   },
   { timestamps: true }
 );

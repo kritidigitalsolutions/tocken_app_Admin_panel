@@ -1,17 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../middleware/upload");
-const { saveUserDetails } = require("../controllers/user.controller");
-const { uploadProfileImage } = require("../controllers/user/user.controller");
+const isAuth = require("../middleware/auth.middleware");
+const { getProfile, updateProfile } = require("../controllers/user.controller");
 
-// ✅ Create new user (manual data entry)
-router.post("/", saveUserDetails);
-
-// Upload profile image
-router.post(
-  "/upload-profile",
-  upload.single("image"),
-  uploadProfileImage
-);
+// ✅ User Profile - REST APIs
+router.get("/profile", isAuth, getProfile);
+router.patch("/profile", isAuth, updateProfile);
 
 module.exports = router;

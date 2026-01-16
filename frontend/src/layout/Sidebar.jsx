@@ -8,7 +8,9 @@ import {
   Image,
   LogOut,
   Home,
-  PhoneCall
+  PhoneCall,
+  Bookmark,
+  MessageSquare
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -59,7 +61,7 @@ const Sidebar = () => {
           }
         >
           <Users size={18} />
-          Users
+          All Users
         </NavLink>
 
         {/* Properties */}
@@ -75,7 +77,7 @@ const Sidebar = () => {
           }
         >
           <Home size={18} />
-          Properties
+          All Properties
         </NavLink>
 
         {/* Leads */}
@@ -92,6 +94,22 @@ const Sidebar = () => {
         >
           <PhoneCall size={18} />
           Leads
+        </NavLink>
+
+        {/* Bookmarks */}
+        <NavLink
+          to="/admin/bookmarks"
+          className={({ isActive }) =>
+            clsx(
+              "flex items-center gap-3 px-4 py-2 rounded-md transition",
+              isActive
+                ? "bg-indigo-600 text-white"
+                : "text-slate-400 hover:bg-slate-800 hover:text-white"
+            )
+          }
+        >
+          <Bookmark size={18} />
+          All Bookmarks
         </NavLink>
 
         {/* Plans */}
@@ -140,6 +158,22 @@ const Sidebar = () => {
         >
           <Image size={18} />
           Banners
+        </NavLink>
+
+        {/* Feedbacks */}
+        <NavLink
+          to="/admin/feedbacks"
+          className={({ isActive }) =>
+            clsx(
+              "flex items-center gap-3 px-4 py-2 rounded-md transition",
+              isActive
+                ? "bg-indigo-600 text-white"
+                : "text-slate-400 hover:bg-slate-800 hover:text-white"
+            )
+          }
+        >
+          <MessageSquare size={18} />
+          All Feedbacks
         </NavLink>
 
         {/* Legal Pages */}

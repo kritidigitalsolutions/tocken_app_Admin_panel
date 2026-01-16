@@ -2,22 +2,23 @@ const express = require("express");
 const cors = require("cors");
 
 const bannerRoutes = require("./routes/banner.routes");
+const adminBannerRoutes = require("./routes/admin/banner.route");
 const authRoutes = require("./routes/auth.routes");
 const userRoutes = require("./routes/user.routes.js");
 const legalRoutes = require("./routes/legal.routes");
-// const planRoutes = require("./routes/plans.routes.js");
 const faqRoutes = require("./routes/faq.routes");
 const faqAdminRoutes = require("./routes/admin/faq.routes");
-//for Authadmin route
-const adminAuthRoutes = require("./routes/auth/adminAuth.routes");
+
+// Admin auth route
+const adminAuthRoutes = require("./routes/admin/auth.routes");
 
 // admin routes
-const adminRoutes = require("./routes/admin/user.routes");
+const adminUserRoutes = require("./routes/admin/user.routes");
 const { isAuth } = require("./middleware/auth.middleware");
 const { isAdmin } = require("./middleware/admin.middleware");
 
 // plans for user
-const userPlanRoutes = require("./routes/user/plan.routes");
+const userPlanRoutes = require("./routes/plan.routes");
 
 // for admin panel plans
 const adminPlanRoutes = require("./routes/admin/plan.routes");
@@ -36,6 +37,18 @@ const leadRoutes = require("./routes/lead.routes");
 
 // for admin Leads Route
 const adminLeadRoutes = require("./routes/admin/lead.routes");
+
+// bookmark routes
+const bookmarkRoutes = require("./routes/bookmark.routes");
+
+// admin bookmark routes
+const adminBookmarkRoutes = require("./routes/admin/bookmark.routes");
+
+// feedback routes
+const feedbackRoutes = require("./routes/feedback.routes");
+
+// admin feedback routes
+const adminFeedbackRoutes = require("./routes/admin/feedback.routes");
 
 // cron job
 const cron = require("node-cron");
@@ -75,9 +88,11 @@ const createAdmin = async () => {
 createAdmin().catch(err => console.log("Admin already exists or error:", err.message));
 
 
-// app.use("/api/banners", bannerRoutes);
-console.log("✅ Registering banner routes with auth middleware at /api/admin/banners");
-app.use("/api/admin/banners", isAuth, isAdmin, bannerRoutes);
+// Public banners (for users - GET only)
+app.use("/api/banners", bannerRoutes);
+
+// Admin banners (full CRUD)
+app.use("/api/admin/banners", isAuth, isAdmin, adminBannerRoutes);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
@@ -93,7 +108,7 @@ app.use("/api/admin/faqs", isAuth, isAdmin, faqAdminRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 
 // admin routes / for all admin protected routes like is auth and is admin
-app.use("/api/admin/users", isAuth, isAdmin, adminRoutes);
+app.use("/api/admin/users", isAuth, isAdmin, adminUserRoutes);
 
 // user plan routes
 app.use("/api/plans", userPlanRoutes);
@@ -121,6 +136,18 @@ app.use("/api/leads", isAuth, leadRoutes);
 
 // admin leads
 app.use("/api/admin/leads", isAuth, isAdmin, adminLeadRoutes);
+
+// user bookmarks/favorites
+app.use("/api/bookmarks", bookmarkRoutes);
+
+// admin bookmarks
+app.use("/api/admin/bookmarks", isAuth, isAdmin, adminBookmarkRoutes);
+
+// user feedback (public)
+app.use("/api/feedback", feedbackRoutes);
+
+// admin feedback
+app.use("/api/admin/feedbacks", isAuth, isAdmin, adminFeedbackRoutes);
 
 
 // Scheduled Tasks

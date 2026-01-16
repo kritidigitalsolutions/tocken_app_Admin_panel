@@ -3,14 +3,15 @@ const router = express.Router();
 
 const {
   getAllUsers,
-  updateUser
+  updateUser,
+  blockUser,
+  deleteUser
 } = require("../../controllers/admin/user.controller");
 
-const isAuth = require("../../middleware/auth.middleware");
-const isAdmin = require("../../middleware/admin.middleware");
-
-// 🔐 Admin only
-router.get("/", isAuth, isAdmin, getAllUsers);
-router.put("/:id", isAuth, isAdmin, updateUser);
+// Routes - middleware applied at app.js level
+router.get("/", getAllUsers);
+router.put("/:id", updateUser);
+router.patch("/:id/block", blockUser);
+router.delete("/:id", deleteUser);
 
 module.exports = router;

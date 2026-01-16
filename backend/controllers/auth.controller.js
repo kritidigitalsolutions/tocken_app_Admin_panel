@@ -1,5 +1,6 @@
 const admin = require("../config/firebase");
 const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
 
 /**
  * SEND OTP
@@ -59,5 +60,50 @@ exports.verifyOTP = async (req, res) => {
 
   } catch (error) {
     res.status(401).json({ message: "Invalid or expired token" });
+  }
+};
+
+/**
+ * DEV LOGIN - For testing purposes only
+ * Login with phone number directly (no OTP verification)
+ * ⚠️ REMOVE IN PRODUCTION
+ */
+exports.devLogin = async (req, res) => {
+  try {
+    const { phone, name, userType } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({ message: "Phone number required" });
+    }
+
+    // Find or create user
+    let user = await User.findOne({ phone });
+
+    if (!user) {
+      // Create new user if not exists
+      user = await User.create({
+        phone,
+        name: name || "Test User",
+        userType: userType || "BUYER"
+      });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { id: user._id, phone: user.phone, role: "USER" },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Dev login successful",
+      token,
+      user
+    });
+
+  } catch (error) {
+    console.error("Dev login error:", error);
+    res.status(500).json({ message: error.message });
   }
 };
