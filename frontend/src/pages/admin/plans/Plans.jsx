@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { fetchPlans, createPlan, updatePlan, deletePlan } from "../../api/plans";
+import { fetchPlans, createPlan, updatePlan, deletePlan } from "../../../api/plans";
 import toast from "react-hot-toast";
-import Loader from "../../components/common/Loader";
+import Loader from "../../../components/common/Loader";
 
 const Plans = () => {
   const [plans, setPlans] = useState([]);

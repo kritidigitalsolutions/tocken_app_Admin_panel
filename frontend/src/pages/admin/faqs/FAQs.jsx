@@ -4,13 +4,13 @@ import {
   createFAQ,
   updateFAQ,
   deleteFAQ,
-} from "../../api/faq.api";
+} from "../../../api/faq.api";
 
-import Button from "../../components/common/Button";
-import Modal from "../../components/modals/Modal";
-import InputField from "../../components/forms/InputField";
-import TextArea from "../../components/forms/TextArea";
-import Loader from "../../components/common/Loader";
+import Button from "../../../components/common/Button";
+import Modal from "../../../components/modals/Modal";
+import InputField from "../../../components/forms/InputField";
+import TextArea from "../../../components/forms/TextArea";
+import Loader from "../../../components/common/Loader";
 import toast from "react-hot-toast";
 import { Toaster } from "react-hot-toast";
 

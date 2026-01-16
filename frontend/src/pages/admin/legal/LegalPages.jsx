@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
-import TextArea from "../../components/forms/TextArea";
-import SelectField from "../../components/forms/SelectField";
-import Button from "../../components/common/Button";
-import Loader from "../../components/common/Loader";
-import { getLegal } from "../../api/legal.api";
-import { updateLegal } from "../../api/legal.api";
+import TextArea from "../../../components/forms/TextArea";
+import SelectField from "../../../components/forms/SelectField";
+import Button from "../../../components/common/Button";
+import Loader from "../../../components/common/Loader";
+import { getLegal } from "../../../api/legal.api";
+import { updateLegal } from "../../../api/legal.api";
 
 const LegalPages = () => {
   const [privacy, setPrivacy] = useState({ content: "", status: "", updatedAt: "" });

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import DataTable from "../../components/tables/DataTable";
-import Button from "../../components/common/Button";
-import Loader from "../../components/common/Loader";
-import { fetchUsers, updateUser } from "../../api/user.api";
+import DataTable from "../../../components/tables/DataTable";
+import Button from "../../../components/common/Button";
+import Loader from "../../../components/common/Loader";
+import { fetchUsers, updateUser } from "../../../api/user.api";
 import toast from "react-hot-toast";
 
 const Users = () => {

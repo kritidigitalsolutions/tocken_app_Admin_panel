@@ -1,103 +1,264 @@
-# Real Estate Project - Complete File Structure & Status
+# Real Estate Admin Panel - Project Structure
 
-**Project**: Demo Real Estate Site  
-**Date**: January 12, 2026  
-**Last Updated**: January 15, 2026  
-**Last Update**: Security & Firebase Configuration - Environment-based credentials
+**Project**: Real Estate Admin Panel  
+**Last Updated**: January 15, 2026
 
 ---
 
-## 📅 Recent Changes Summary
+## 📁 Complete Directory Structure
 
-### January 15, 2026 - Security & Firebase Configuration
+```
+root/
+├── .git/                           # Git repository
+├── .gitignore                      # Git ignore file
+├── API_DOCUMENTATION.md            # API routes documentation
+├── PROJECT_STRUCTURE.md            # This file
+│
+├── backend/                        # Node.js Express Backend
+│   ├── .env                        # Environment variables
+│   ├── app.js                      # Express app setup
+│   ├── server.js                   # Server entry point
+│   ├── package.json                # Backend dependencies
+│   ├── package-lock.json           # Dependency lock file
+│   ├── node_modules/               # Installed packages
+│   │
+│   ├── config/                     # Configuration files
+│   │   ├── cloudinary.js           # Cloudinary image service config
+│   │   ├── db.js                   # Database connection
+│   │   ├── firebase.js             # Firebase OTP service config
+│   │   ├── multer.js               # File upload middleware
+│   │   └── radies.js               # Redis cache config
+│   │
+│   ├── controllers/                # Business logic controllers
+│   │   ├── auth.controller.js      # Public OTP authentication
+│   │   ├── user.controller.js      # User profile management
+│   │   ├── property.controller.js  # Property listing (user)
+│   │   ├── lead.controller.js      # Lead creation (user)
+│   │   ├── banner.controller.js    # Banner management
+│   │   ├── faq.controller.js       # FAQ management
+│   │   ├── legal.controller.js     # Legal pages management
+│   │   │
+│   │   ├── admin/                  # Admin-specific controllers
+│   │   │   ├── dashboard.controller.js    # Dashboard analytics
+│   │   │   ├── user.controller.js         # Admin user management
+│   │   │   ├── property.controller.js     # Admin property management
+│   │   │   ├── lead.controller.js        # Admin lead management
+│   │   │   ├── faq.controller.js         # Admin FAQ management
+│   │   │   ├── plan.controller.js        # Admin plan management
+│   │   │   └── audit.controller.js       # Audit logs
+│   │   │
+│   │   ├── auth/                   # Admin authentication
+│   │   │   └── adminAuth.controller.js   # Admin login
+│   │   │
+│   │   └── user/                   # User-specific features
+│   │       ├── plan.controller.js        # User plan purchase
+│   │       └── user.controller.js        # User profile management
+│   │
+│   ├── middleware/                 # Express middlewares
+│   │   ├── auth.middleware.js      # JWT authentication check
+│   │   ├── admin.middleware.js     # Admin role verification
+│   │   ├── permission.middleware.js# Granular permission checks
+│   │   ├── plan.middleware.js      # Plan verification
+│   │   ├── cache.middleware.js     # Redis caching
+│   │   ├── multer.middleware.js    # File upload handling
+│   │   └── upload.js               # Upload utility
+│   │
+│   ├── models/                     # Database models
+│   │   ├── user.model.js           # User schema
+│   │   ├── admin.model.js          # Admin schema
+│   │   ├── property.model.js       # Property listing schema
+│   │   ├── lead.model.js           # Lead schema
+│   │   ├── plans.model.js          # Subscription plan schema
+│   │   ├── Banner.model.js         # Banner schema
+│   │   ├── faq.model.js            # FAQ schema
+│   │   ├── Legal.model.js          # Legal content schema
+│   │   ├── OTP.model.js            # OTP schema
+│   │   └── auditLog.model.js       # Audit log schema
+│   │
+│   ├── routes/                     # API route handlers
+│   │   ├── auth.routes.js          # Public auth routes
+│   │   ├── user.routes.js          # User routes
+│   │   ├── property.routes.js      # User property routes
+│   │   ├── lead.routes.js          # User lead routes
+│   │   ├── faq.routes.js           # Public FAQ routes
+│   │   ├── banner.routes.js        # Public banner routes
+│   │   ├── legal.routes.js         # Public legal routes
+│   │   │
+│   │   ├── admin/                  # Admin routes
+│   │   │   ├── index.js            # Admin routes aggregator
+│   │   │   ├── dashboard.routes.js # Dashboard routes
+│   │   │   ├── user.routes.js      # Admin user management routes
+│   │   │   ├── property.routes.js  # Admin property management routes
+│   │   │   ├── lead.routes.js      # Admin lead management routes
+│   │   │   ├── faq.routes.js       # Admin FAQ management routes
+│   │   │   ├── plan.routes.js      # Admin plan management routes
+│   │   │   └── audit.routes.js     # Audit log routes
+│   │   │
+│   │   ├── auth/                   # Admin authentication
+│   │   │   └── adminAuth.routes.js # Admin login route
+│   │   │
+│   │   └── user/                   # User specific routes
+│   │       └── plan.routes.js      # User plan purchase routes
+│   │
+│   └── utils/                      # Utility functions
+│       ├── auditLogger.js          # Audit log creation
+│       ├── cacheInvalidator.js     # Cache management
+│       ├── generateToken.js        # JWT token generation
+│       ├── listingScore.js         # Property listing score calculation
+│       ├── permissions.js          # Permission checking
+│       └── premiumExpiry.js        # Premium property expiry handler
+│
+├── frontend/                       # React.js Frontend
+│   ├── .gitignore                  # Git ignore
+│   ├── package.json                # Frontend dependencies
+│   ├── package-lock.json           # Dependency lock
+│   ├── tailwind.config.js          # Tailwind CSS config
+│   ├── postcss.config.js           # PostCSS config
+│   ├── README.md                   # Frontend README
+│   ├── node_modules/               # Installed packages
+│   │
+│   ├── public/                     # Static files
+│   │   ├── index.html              # Main HTML file
+│   │   ├── manifest.json           # PWA manifest
+│   │   └── robots.txt              # SEO robots file
+│   │
+│   └── src/                        # Source code
+│       ├── App.js                  # Main App component
+│       ├── App.css                 # App styles
+│       ├── index.js                # React entry point
+│       ├── index.css               # Global styles
+│       │
+│       ├── api/                    # API call files
+│       │   ├── api.js              # Base API instance
+│       │   ├── admin.audit.api.js  # Admin audit API calls
+│       │   ├── admin.dashboard.api.js # Admin dashboard API calls
+│       │   ├── admin.lead.api.js   # Admin lead API calls
+│       │   ├── admin.property.api.js # Admin property API calls
+│       │   ├── banner.api.js       # Banner API calls
+│       │   ├── dashboard.api.js    # User dashboard API calls
+│       │   ├── faq.api.js          # FAQ API calls
+│       │   ├── legal.api.js        # Legal API calls
+│       │   ├── plans.js            # Plans API calls
+│       │   └── user.api.js         # User API calls
+│       │
+│       ├── components/             # Reusable components
+│       │   ├── ProtectedRoute.jsx  # Route protection wrapper
+│       │   │
+│       │   ├── common/             # Common/shared components
+│       │   │   ├── Button.jsx      # Button component
+│       │   │   ├── Loader.jsx      # Loading spinner
+│       │   │   └── Permission.jsx  # Permission checker
+│       │   │
+│       │   ├── forms/              # Form components
+│       │   │   └── (form files)
+│       │   │
+│       │   ├── modals/             # Modal components
+│       │   │   └── (modal files)
+│       │   │
+│       │   └── tables/             # Table components
+│       │       └── (table files)
+│       │
+│       ├── layout/                 # Layout components
+│       │   ├── AdminLayout.jsx     # Admin panel layout wrapper
+│       │   ├── Sidebar.jsx         # Sidebar navigation
+│       │   └── Topbar.jsx          # Top navigation bar
+│       │
+│       ├── pages/                  # Page components
+│       │   ├── Login.jsx           # Admin login page
+│       │   │
+│       │   └── admin/              # Admin pages
+│       │       ├── audit/          # Audit logs pages
+│       │       ├── banners/        # Banner management pages
+│       │       ├── dashboard/      # Dashboard pages
+│       │       ├── faqs/           # FAQ management pages
+│       │       ├── leads/          # Lead management pages
+│       │       ├── legal/          # Legal content pages
+│       │       ├── plans/          # Plan management pages
+│       │       ├── properties/     # Property management pages
+│       │       └── users/          # User management pages
+│       │
+│       └── routes/                 # Route configuration
+│           └── AdminRoutes.jsx     # Admin routes setup
 
-#### 🔐 Security Improvements
-- **Added**: `.gitignore` file with comprehensive exclusions
-  - Prevents sensitive files from being committed
-  - Excludes: `node_modules/`, `.env`, Firebase credentials, build artifacts, IDE configs
-  - Protects: `backend/firebase/serviceAccountKey.json`
-
-#### 🗑️ Removed Items
-- **Deleted**: `backend/firebase/serviceAccountKey.json` from git history
-  - Removed from all commits using `git filter-branch`
-  - File still exists locally but no longer tracked by git
-  - GitHub Push Protection detected and blocked the secret
-
-#### ✏️ Modified / Updated Files
-- **Updated**: `backend/config/firebase.js`
-  - Changed from static file import to dynamic environment-based loading
-  - Now supports two credential sources:
-    1. Environment variable: `FIREBASE_SERVICE_ACCOUNT` (JSON string from .env)
-    2. Local file fallback: `backend/firebase/serviceAccountKey.json` (if exists)
-  - Added graceful error handling for missing credentials
-  - Added `path` and `fs` module imports for file existence checks
-
-- **Updated**: `backend/controllers/auth.controller.js`
-  - Added Firebase availability check
-  - Improved error handling for Firebase OTP functionality
-  - Added 7 lines of code for enhanced error handling
+```
 
 ---
 
-## 📅 Previous Changes (January 14, 2026)
+## 📊 Project Statistics
 
-### 🗑️ Deleted / Removed Items
+### Backend
+- **Routes**: 50+ API endpoints
+- **Controllers**: 14 controller files
+- **Models**: 10 database schemas
+- **Middleware**: 7 custom middlewares
+- **Config**: 5 external service configs
 
-#### Backend Files
-- **Deleted**: `backend/gudeforOtpSendFrom Front end Setup.md`
-  - OTP guide documentation removed
+### Frontend
+- **Pages**: 1 login + admin sections with 9 sub-categories
+- **Components**: Reusable common, forms, modals, and tables
+- **API Integrations**: 12+ API call files
 
-#### Frontend Components
-- **Deleted**: `frontend/src/components/Dashboard.jsx`
-  - Duplicate dashboard component (consolidated into pages)
-  
-- **Deleted**: `frontend/src/components/Sidebar.jsx`
-  - Duplicate sidebar component (moved to layout)
-  
-- **Deleted**: `frontend/src/layout/UserLayout.jsx`
-  - User layout wrapper removed (streamlined routing)
-  
-- **Deleted**: `frontend/src/layout/UserSidebar.jsx`
-  - User sidebar component removed
-  
-- **Deleted**: `frontend/src/routes/UserRoutes.jsx`
-  - Entire user routing removed (focusing on admin panel only)
-  
-- **Deleted**: `frontend/src/pages/Users.jsx`
-  - Old/duplicate Users page (consolidated into pages/users/)
-  
-- **Deleted**: `frontend/src/pages/users/my-listings/MyListings.jsx`
-  - Removed user listings page
-  
-- **Deleted**: `frontend/src/pages/users/my-leads/MyLeads.jsx`
-  - Removed user leads page
+---
 
-#### Frontend Config & Test Files
-- **Deleted**: `frontend/src/App.test.js`
-  - React test file removed
-  
-- **Deleted**: `frontend/src/reportWebVitals.js`
-  - Performance monitoring module removed
-  
-- **Deleted**: `frontend/src/setupTests.js`
-  - Test configuration file removed
-  
-- **Deleted**: `frontend/src/logo.svg`
-  - Logo asset removed
+## 🔑 Key Features
 
-### ✏️ Modified / Updated Files
+### Backend Features
+- ✅ OTP-based user authentication
+- ✅ Admin authentication with JWT
+- ✅ Property listing management (user & admin)
+- ✅ Lead management system
+- ✅ Subscription plans
+- ✅ Premium property listings
+- ✅ FAQ management
+- ✅ Banner management
+- ✅ Legal pages (Privacy, Terms)
+- ✅ Audit logging system
+- ✅ Role-based access control
+- ✅ Granular permissions
+- ✅ Redis caching
+- ✅ File uploads to Cloudinary
 
-#### Frontend Main Files
-- **Updated**: `frontend/src/App.js`
-  - Removed import of `UserRoutes` from routes
-  - Removed `/user/*` route path
-  - Simplified routing to focus on admin panel only
-  - Kept: Login redirect, Admin routes, Protected routes
+### Frontend Features
+- ✅ Admin login
+- ✅ Dashboard with analytics
+- ✅ User management
+- ✅ Property management
+- ✅ Lead management
+- ✅ Plan management
+- ✅ FAQ management
+- ✅ Banner management
+- ✅ Audit logs
+- ✅ Responsive design
 
-- **Updated**: `frontend/src/index.js`
-  - Removed import of `reportWebVitals` module
-  - Removed performance monitoring calls
-  - Kept: Toaster integration
+---
+
+## 🚀 Technologies Used
+
+### Backend
+- **Framework**: Express.js (Node.js)
+- **Database**: MongoDB
+- **Authentication**: JWT
+- **File Storage**: Cloudinary
+- **Cache**: Redis
+- **OTP Service**: Firebase
+- **Job Scheduler**: node-cron
+
+### Frontend
+- **Framework**: React.js
+- **Styling**: Tailwind CSS
+- **HTTP Client**: Axios
+- **State Management**: (Context/Redux)
+
+---
+
+## 📝 Notes
+
+- All sensitive data is stored in `.env` file
+- Firebase credentials are environment-based for security
+- Admin routes require authentication and admin role
+- User routes require authentication
+- Public routes are accessible without authentication
+- Audit logs track all admin actions
 
 #### Frontend Routing
 - **Updated**: `frontend/src/routes/AdminRoutes.jsx`

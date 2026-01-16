@@ -1,12 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 import AdminLayout from "../layout/AdminLayout";
 
-import Dashboard from "../pages/dashboard/Dashboard";
-import Users from "../pages/users/Users";
-import Plans from "../pages/plans/Plans";
-import FAQs from "../pages/faqs/FAQs";
-import Banners from "../pages/banners/Banners";
-import LegalPages from "../pages/legal/LegalPages";
+import Dashboard from "../pages/admin/dashboard/Dashboard";
+import Users from "../pages/admin/users/Users";
+import Plans from "../pages/admin/plans/Plans";
+import FAQs from "../pages/admin/faqs/FAQs";
+import Banners from "../pages/admin/banners/Banners";
+import LegalPages from "../pages/admin/legal/LegalPages";
 import ProtectedRoute from "../components/common/ProtectedRoute";
 // for properties and leads
 import Properties from "../pages/admin/properties/Properties";

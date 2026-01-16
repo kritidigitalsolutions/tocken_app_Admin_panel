@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import DataTable from "../../components/tables/DataTable";
-import Modal from "../../components/modals/Modal";
-import Button from "../../components/common/Button";
-import Loader from "../../components/common/Loader";
+import DataTable from "../../../components/tables/DataTable";
+import Modal from "../../../components/modals/Modal";
+import Button from "../../../components/common/Button";
+import Loader from "../../../components/common/Loader";
 
 import {
   fetchBanners,
@@ -11,7 +11,7 @@ import {
   createBanner,
   updateBanner,
   toggleBannerStatus
-} from "../../api/banner.api";
+} from "../../../api/banner.api";
 
 const initialForm = {
   title: "",
