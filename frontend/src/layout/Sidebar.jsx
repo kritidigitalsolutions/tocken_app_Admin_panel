@@ -13,7 +13,8 @@ import {
   MessageSquare,
   Bell,
   Info,
-  UserX
+  UserX,
+  Wallpaper
 } from "lucide-react";
 import clsx from "clsx";
 
@@ -161,6 +162,22 @@ const Sidebar = () => {
         >
           <Image size={18} />
           Banners
+        </NavLink>
+
+        {/* Wallpapers */}
+        <NavLink
+          to="/admin/wallpapers"
+          className={({ isActive }) =>
+            clsx(
+              "flex items-center gap-3 px-4 py-2 rounded-md transition",
+              isActive
+                ? "bg-indigo-600 text-white"
+                : "text-slate-400 hover:bg-slate-800 hover:text-white"
+            )
+          }
+        >
+          <Wallpaper size={18} />
+          Wallpapers
         </NavLink>
 
         {/* Feedbacks */}

@@ -1,5 +1,9 @@
 # 📬 Notification API - Postman Testing Guide
 
+**Last Updated**: January 21, 2026  
+**Version**: 2.0  
+**Status**: Production Ready
+
 ## Base URL
 ```
 http://localhost:5000/api

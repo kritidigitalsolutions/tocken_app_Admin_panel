@@ -1,7 +1,8 @@
 # Real Estate Admin Panel - Project Structure
 
 **Project**: Real Estate Admin Panel  
-**Last Updated**: January 15, 2026
+**Last Updated**: January 21, 2026
+**Status**: Active Development
 
 ---
 
@@ -30,32 +31,85 @@ root/
 │   │   └── radies.js               # Redis cache config
 │   │
 │   ├── controllers/                # Business logic controllers
-│   │   ├── auth.controller.js      # Public OTP authentication
-│   │   ├── user.controller.js      # User profile management
-│   │   ├── property.controller.js  # Property listing (user)
-│   │   ├── lead.controller.js      # Lead creation (user)
-│   │   ├── banner.controller.js    # Banner management
-│   │   ├── faq.controller.js       # FAQ management
-│   │   ├── legal.controller.js     # Legal pages management
+│   │   ├── auth.controller.js           # Public OTP authentication
+│   │   ├── user.controller.js           # User profile management
+│   │   ├── property.controller.js       # Property listing (user)
+│   │   ├── propertyFilter.controller.js # Property filtering & search
+│   │   ├── lead.controller.js           # Lead creation (user)
+│   │   ├── banner.controller.js         # Banner management
+│   │   ├── bookmark.controller.js       # Bookmark/favorite management
+│   │   ├── notification.controller.js   # Notification management
+│   │   ├── feedback.controller.js       # Feedback/review management
+│   │   ├── plan.controller.js           # Plan management
+│   │   ├── faq.controller.js            # FAQ management
+│   │   ├── legal.controller.js          # Legal pages management
+│   │   ├── aboutUs.controller.js        # About Us pages management
 │   │   │
-│   │   ├── admin/                  # Admin-specific controllers
-│   │   │   ├── dashboard.controller.js    # Dashboard analytics
-│   │   │   ├── user.controller.js         # Admin user management
-│   │   │   ├── property.controller.js     # Admin property management
-│   │   │   ├── lead.controller.js        # Admin lead management
-│   │   │   ├── faq.controller.js         # Admin FAQ management
-│   │   │   ├── plan.controller.js        # Admin plan management
-│   │   │   └── audit.controller.js       # Audit logs
+│   │   ├── admin/                       # Admin-specific controllers (12 files)
+│   │   │   ├── dashboard.controller.js       # Dashboard analytics
+│   │   │   ├── user.controller.js            # Admin user management
+│   │   │   ├── property.controller.js        # Admin property management
+│   │   │   ├── lead.controller.js            # Admin lead management
+│   │   │   ├── faq.controller.js             # Admin FAQ management
+│   │   │   ├── plan.controller.js            # Admin plan management
+│   │   │   ├── audit.controller.js           # Audit logs
+│   │   │   ├── banner.controller.js          # Admin banner management
+│   │   │   ├── bookmark.controller.js        # Admin bookmark management
+│   │   │   ├── notification.controller.js    # Admin notification management
+│   │   │   ├── feedback.controller.js        # Admin feedback management
+│   │   │   └── deletionRequest.controller.js # Deletion request handling
 │   │   │
-│   │   ├── auth/                   # Admin authentication
-│   │   │   └── adminAuth.controller.js   # Admin login
-│   │   │
-│   │   └── user/                   # User-specific features
-│   │       ├── plan.controller.js        # User plan purchase
-│   │       └── user.controller.js        # User profile management
+│   │   ├── auth/                        # Admin authentication
+│   │   │   └── adminAuth.controller.js  # Admin login
 │   │
 │   ├── middleware/                 # Express middlewares
 │   │   ├── auth.middleware.js      # JWT authentication check
+│   │   ├── admin.middleware.js     # Admin role veri (13 files)
+│   │   ├── user.model.js           # User schema
+│   │   ├── admin.model.js          # Admin schema
+│   │   ├── property.model.js       # Property listing schema (multi-type support)
+│   │   ├── lead.model.js           # Lead schema
+│   │   ├── plans.model.js          # Subscription plan schema
+│   │   ├── Banner.model.js         # Banner schema
+│   │   ├── faq.model.js            # FAQ schema
+│   │   ├── Legal.model.js          # Legal content schema
+│   │   ├── notification.model.js   # Notification schema
+│   │   ├── OTP.model.js            # OTP schema
+│   │   ├── auditLog.model.js       # Audit log schema
+│   │   ├── feedback.model.js       # Feedback schema
+│   │   └── aboutUs.model.js        # About Us contentlisting schema
+│   │   ├── lead.model.js           # Lead schema
+│   │   ├── plans.model.js          # Subscription plan schema
+│   │   ├── Banner.model.js         # Banner schema
+│   │   ├── faq.model.js            # FAQ schema
+│   │   ├── Legal.model.js          # Legal content schema
+│   │   ├── OTP.model.js            # OTP schema (12 + 15 admin routes)
+│   │   ├── auth.routes.js              # Public auth routes
+│   │   ├── user.routes.js              # User routes
+│   │   ├── property.routes.js          # User property routes
+│   │   ├── lead.routes.js              # User lead routes
+│   │   ├── faq.routes.js               # Public FAQ routes
+│   │   ├── banner.routes.js            # Public banner routes
+│   │   ├── bookmark.routes.js          # Public bookmark routes
+│   │   ├── notification.routes.js      # User notification routes
+│   │   ├── feedback.routes.js          # User feedback routes
+│   │   ├── plan.routes.js              # Public plan routes
+│   │   ├── legal.routes.js             # Public legal routes
+│   │   ├── aboutUs.routes.js           # Public about us routes
+│   │   │
+│   │   ├── admin/                      # Admin routes (15 files)
+│   │   │   ├── index.js                # Admin routes aggregator
+│   │   │   ├── dashboard.routes.js     # Dashboard routes
+│   │   │   ├── user.routes.js          # Admin user management routes
+│   │   │   ├── property.routes.js      # Admin property management routes
+│   │   │   ├── lead.routes.js          # Admin lead management routes
+│   │   │   ├── faq.routes.js           # Admin FAQ management routes
+│   │   │   ├── plan.routes.js          # Admin plan management routes
+│   │   │   ├── audit.routes.js         # Audit log routes
+│   │   │   ├── banner.route.js         # Admin banner routes
+│   │   │   ├── bookmark.routes.js      # Admin bookmark management routes
+│   ├── middleware/                 # Express middlewares (5+ files)
+│   │   ├── auth.middleware.js      # JWT authentication verification
 │   │   ├── admin.middleware.js     # Admin role verification
 │   │   ├── permission.middleware.js# Granular permission checks
 │   │   ├── plan.middleware.js      # Plan verification
@@ -63,39 +117,11 @@ root/
 │   │   ├── multer.middleware.js    # File upload handling
 │   │   └── upload.js               # Upload utility
 │   │
-│   ├── models/                     # Database models
-│   │   ├── user.model.js           # User schema
-│   │   ├── admin.model.js          # Admin schema
-│   │   ├── property.model.js       # Property listing schema
-│   │   ├── lead.model.js           # Lead schema
-│   │   ├── plans.model.js          # Subscription plan schema
-│   │   ├── Banner.model.js         # Banner schema
-│   │   ├── faq.model.js            # FAQ schema
-│   │   ├── Legal.model.js          # Legal content schema
-│   │   ├── OTP.model.js            # OTP schema
-│   │   └── auditLog.model.js       # Audit log schema
-│   │
-│   ├── routes/                     # API route handlers
-│   │   ├── auth.routes.js          # Public auth routes
-│   │   ├── user.routes.js          # User routes
-│   │   ├── property.routes.js      # User property routes
-│   │   ├── lead.routes.js          # User lead routes
-│   │   ├── faq.routes.js           # Public FAQ routes
-│   │   ├── banner.routes.js        # Public banner routes
-│   │   ├── legal.routes.js         # Public legal routes
-│   │   │
-│   │   ├── admin/                  # Admin routes
-│   │   │   ├── index.js            # Admin routes aggregator
-│   │   │   ├── dashboard.routes.js # Dashboard routes
-│   │   │   ├── user.routes.js      # Admin user management routes
-│   │   │   ├── property.routes.js  # Admin property management routes
-│   │   │   ├── lead.routes.js      # Admin lead management routes
-│   │   │   ├── faq.routes.js       # Admin FAQ management routes
-│   │   │   ├── plan.routes.js      # Admin plan management routes
-│   │   │   └── audit.routes.js     # Audit log routes
-│   │   │
-│   │   ├── auth/                   # Admin authentication
-│   │   │   └── adminAuth.routes.js # Admin login route
+│   │   │   ├── notification.routes.js  # Admin notification routes
+│   │   │   ├── feedback.routes.js      # Admin feedback routes
+│   │   │   ├── auth.routes.js          # Admin auth routes
+│   │   │   ├── deletionRequest.routes.js # Deletion request routes
+│   │   │   └── aboutUs.routes.js       # Admin about us
 │   │   │
 │   │   └── user/                   # User specific routes
 │   │       └── plan.routes.js      # User plan purchase routes
@@ -169,55 +195,81 @@ root/
 │       │   └── admin/              # Admin pages
 │       │       ├── audit/          # Audit logs pages
 │       │       ├── banners/        # Banner management pages
-│       │       ├── dashboard/      # Dashboard pages
-│       │       ├── faqs/           # FAQ management pages
-│       │       ├── leads/          # Lead management pages
-│       │       ├── legal/          # Legal content pages
-│       │       ├── plans/          # Plan management pages
-│       │       ├── properties/     # Property management pages
-│       │       └── users/          # User management pages
-│       │
-│       └── routes/                 # Route configuration
-│           └── AdminRoutes.jsx     # Admin routes setup
+│   API Endpoints**: 70+ endpoints across all features
+- **Controllers**: 27 controller files (15 main + 12 admin)
+- **Models**: 13 database schemas
+- **Middleware**: 7 custom middlewares
+- **Routes**: 27 route files (12 main + 15 admin)
+- **Config**: 5 external service configs (DB, Cloudinary, Firebase, Redis, Multer)
+- **Utilities**: 6 helper functions
+
+### Frontend
+- **Pages**: 1 login page + 11 admin dashboard sections (Dashboard, Users, Properties, Leads, Plans, FAQs, Banners, Legal, Notifications, Feedbacks, About Us, Audit Logs, Deletion Requests)
+- **Components**: Common components, forms, modals, tables, layout components
+- **API Integrations**: 12+ API call modules
+- **Styling**: Tailwind CSS with PostCSSn routes setup
 
 ```
 
 ---
 
 ## 📊 Project Statistics
-
-### Backend
-- **Routes**: 50+ API endpoints
-- **Controllers**: 14 controller files
-- **Models**: 10 database schemas
-- **Middleware**: 7 custom middlewares
-- **Config**: 5 external service configs
-
-### Frontend
-- **Pages**: 1 login + admin sections with 9 sub-categories
-- **Components**: Reusable common, forms, modals, and tables
-- **API Integrations**: 12+ API call files
-
----
-
-## 🔑 Key Features
-
-### Backend Features
-- ✅ OTP-based user authentication
+ (Firebase)
 - ✅ Admin authentication with JWT
-- ✅ Property listing management (user & admin)
+- ✅ Multi-type property listing (RENT, SELL, PG, Co-Living)
+- ✅ Advanced property filtering & search
 - ✅ Lead management system
+- ✅ Bookmark/favorite properties
+- ✅ Notification system (push & in-app)
+- ✅ Feedback & review management
 - ✅ Subscription plans
 - ✅ Premium property listings
 - ✅ FAQ management
 - ✅ Banner management
-- ✅ Legal pages (Privacy, Terms)
+- ✅ Legal pages (Privacy, Terms, About Us)
+- ✅ Deletion request handling
 - ✅ Audit logging system
-- ✅ Role-based access control
-- ✅ Granular permissions
-- ✅ Redis caching
+- ✅ Role-based access control (RBAC)
+- ✅ Granular permissions system
+- ✅ Redis caching for performance
 - ✅ File uploads to Cloudinary
+- ✅ Scheduled tasks (node-cron)
 
+### Frontend Features
+- ✅ Admin login with JWT
+- ✅ Dashboard with analytics & KPIs
+- ✅ User management (view, block, delete)
+- ✅ Property management (view, status, premium, restore)
+- ✅ Lead management & spam handling
+- ✅ Plan management (create, update, delete)
+- ✅ FAQ management (create, update, delete)
+- ✅ Banner management with toggle
+- ✅ Notification management
+- ✅ Feedback & review moderation
+- ✅ Runtime**: Node.js v18+
+- **Framework**: Express.js 5.2.1
+- **Database**: MongoDB with Mongoose 9.1.2 ODM
+- **Authentication**: JWT (jsonwebtoken 9.0.3)
+- **Password**: bcryptjs 3.0.3
+- **File Storage**: Cloudinary 2.8.0
+- **File Upload**: Multer 2.0.2 with Cloudinary storage
+- **Cache**: Redis
+- **OTP Service**: Firebase Admin 13.6.0
+- **Job Scheduler**: node-cron 4.2.1
+- **CORS**: cors 2.8.5
+- **Environment**: dotenv 17.2.3
+- **Development**: nodemon 3.1.11
+
+### Frontend
+- **Framework**: React 19.2.3
+- **Routing**: React Router DOM 7.12.0
+- **Styling**: Tailwind CSS 3.4.19 with PostCSS 8.5.6
+- **HTTP Client**: Axios 1.13.2
+- **UI Components**: Lucide React 0.562.0
+- **Notifications**: React Hot Toast 2.6.0
+- **Build Tool**: Create React App (react-scripts 5.0.1)
+- **Testing**: @testing-library/react 16.3.1
+- **State Management**: React Context API (built-in
 ### Frontend Features
 - ✅ Admin login
 - ✅ Dashboard with analytics
@@ -627,8 +679,9 @@ demo-real-estate-site/
     │   │   └── Orders.jsx
     │   ├── routes/     (AdminRoutes only - UserRoutes REMOVED)
     │   ├── App.js
-    │   ├── index.js
-    │   └── index.css
+    │   ├── index.js21, 2026  
+**Purpose**: Project structure documentation and status tracking  
+**Version**: 2.0 (Comprehensive multi-feature real estate platform)
     ├── package.json
     ├── tailwind.config.js
     └── postcss.config.js
@@ -640,13 +693,22 @@ demo-real-estate-site/
 - ✅ Duplicate components removed (Dashboard.jsx, Sidebar.jsx from /components/)
 - ✅ Test files removed (App.test.js, setupTests.js)
 - ✅ reportWebVitals.js removed
-- ✅ logo.svg removed
+- ✅ logo.svg removed21, 2026)
 
----
+**Complete Platform Features:**
+- ✅ Multi-listing property types (RENT, SELL, PG, Co-Living)
+- ✅ Advanced user management & authentication
+- ✅ Lead & booking system
+- ✅ Subscription plans
+- ✅ Notification & feedback system
+- ✅ Admin dashboard with analytics
+- ✅ Audit logging for compliance
+- ✅ Role-based access control
+- ✅ File uploads to cloud storage
+- ✅ Caching for performance
+- ✅ Responsive admin interface
 
-## 🔗 Key Integration Points
-
-### Frontend → Backend
+**Documentation Status**: All markdown files updated with current accurate project structure and capabilities as of January 21, 2026.
 - API calls via `src/api/api.js`
 - Authentication: `/auth/login` endpoint
 - Protected routes: `ProtectedRoute.jsx`

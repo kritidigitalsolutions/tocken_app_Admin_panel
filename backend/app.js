@@ -65,6 +65,12 @@ const adminAboutUsRoutes = require("./routes/admin/aboutUs.routes");
 // admin deletion request routes
 const adminDeletionRequestRoutes = require("./routes/admin/deletionRequest.routes");
 
+// wallpaper routes
+const wallpaperRoutes = require("./routes/wallpaper.routes");
+
+// admin wallpaper routes
+const adminWallpaperRoutes = require("./routes/admin/wallpaper.routes");
+
 // cron job
 const cron = require("node-cron");
 
@@ -174,13 +180,19 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin/notifications", isAuth, isAdmin, adminNotificationRoutes);
 
 // about us (public)
-app.use("/api/about-us", aboutUsRoutes);
+app.use("/api/aboutus", aboutUsRoutes);
 
 // admin about us
-app.use("/api/admin/about-us", isAuth, isAdmin, adminAboutUsRoutes);
+app.use("/api/admin/aboutus", isAuth, isAdmin, adminAboutUsRoutes);
 
 // admin deletion requests
 app.use("/api/admin/deletion-requests", isAuth, isAdmin, adminDeletionRequestRoutes);
+
+// wallpapers (public)
+app.use("/api/wallpapers", wallpaperRoutes);
+
+// admin wallpapers
+app.use("/api/admin/wallpapers", isAuth, isAdmin, adminWallpaperRoutes);
 
 // Scheduled Tasks
 cron.schedule("0 * * * *", expirePremiumListings); // every hour

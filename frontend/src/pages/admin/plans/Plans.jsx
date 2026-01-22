@@ -10,7 +10,7 @@ const Plans = () => {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     planName: "",
-    userType: "INDIVIDUAL",
+    userType: "AGENT",
     price: "",
     originalPrice: "",
     validityDays: "",
@@ -22,7 +22,14 @@ const Plans = () => {
   });
   const [featureInput, setFeatureInput] = useState("");
 
-  const userTypes = ["AGENT", "BUILDER", "INDIVIDUAL"];
+  const userTypes = ["AGENT",
+      "SELLER",
+      "LANDLORD",
+      "PG OWNER",
+      "BUYER",
+      "TENANT",
+      "CO-LIVING",
+      "PG SEEKER"];
   const tags = ["Most Popular", "Best Value", "Limited Offer", ""];
 
   // Load plans

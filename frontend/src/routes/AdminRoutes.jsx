@@ -21,6 +21,8 @@ import Notifications from "../pages/admin/notifications/Notifications";
 import AboutUs from "../pages/admin/aboutUs/AboutUs";
 // for deletion requests
 import DeletionRequests from "../pages/admin/deletionRequests/DeletionRequests";
+// for wallpapers
+import Wallpapers from "../pages/admin/wallpapers/Wallpapers";
 
 
 const AdminRoutes = () => {
@@ -44,6 +46,7 @@ const AdminRoutes = () => {
         <Route path="notifications" element={<Notifications />} />
         <Route path="about-us" element={<AboutUs />} />
         <Route path="deletion-requests" element={<DeletionRequests />} />
+        <Route path="wallpapers" element={<Wallpapers />} />
 
 
       </Route>

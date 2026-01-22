@@ -5,8 +5,13 @@ const planSchema = new mongoose.Schema({
     type: String,
     enum: [
       "AGENT",
-      "BUILDER",
-      "INDIVIDUAL"
+      "SELLER",
+      "LANDLORD",
+      "PG OWNER",
+      "BUYER",
+      "TENANT",
+      "CO-LIVING",
+      "PG SEEKER"
     ],
     required: true
   },
@@ -32,12 +37,6 @@ const planSchema = new mongoose.Schema({
 
   features: [String],
 
-  faqs: [
-    {
-      question: String,
-      answer: String
-    }
-  ],
 
   offerEndsInDays: Number,
 
