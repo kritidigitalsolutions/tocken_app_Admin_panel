@@ -19,8 +19,10 @@ import {
     MessageSquare,
     X
 } from "lucide-react";
+import { useTheme } from "../../../context/ThemeContext";
 
 const DeletionRequests = () => {
+    const { isDark } = useTheme();
     const [requests, setRequests] = useState([]);
     const [stats, setStats] = useState({ pending: 0, approved: 0, rejected: 0, total: 0 });
     const [loading, setLoading] = useState(true);
@@ -45,6 +47,7 @@ const DeletionRequests = () => {
 
     useEffect(() => {
         loadRequests();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedStatus]);
 
     const handleApprove = async (userId) => {
@@ -110,8 +113,8 @@ const DeletionRequests = () => {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-bold">Account Deletion Requests</h2>
-                    <p className="text-slate-400 text-sm mt-1">
+                    <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Account Deletion Requests</h2>
+                    <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                         Review and process user account deletion requests
                     </p>
                 </div>
@@ -119,39 +122,39 @@ const DeletionRequests = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-yellow-900/30 border border-yellow-700 rounded-lg p-4">
+                <div className={`rounded-lg p-4 border ${isDark ? 'bg-yellow-900/30 border-yellow-700' : 'bg-yellow-50 border-yellow-200'}`}>
                     <div className="flex items-center gap-3">
-                        <Clock className="text-yellow-400" size={24} />
+                        <Clock className={isDark ? 'text-yellow-400' : 'text-yellow-600'} size={24} />
                         <div>
-                            <p className="text-yellow-400 text-2xl font-bold">{stats.pending}</p>
-                            <p className="text-yellow-300 text-sm">Pending</p>
+                            <p className={`text-2xl font-bold ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`}>{stats.pending}</p>
+                            <p className={`text-sm ${isDark ? 'text-yellow-300' : 'text-yellow-700'}`}>Pending</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-green-900/30 border border-green-700 rounded-lg p-4">
+                <div className={`rounded-lg p-4 border ${isDark ? 'bg-green-900/30 border-green-700' : 'bg-green-50 border-green-200'}`}>
                     <div className="flex items-center gap-3">
-                        <CheckCircle className="text-green-400" size={24} />
+                        <CheckCircle className={isDark ? 'text-green-400' : 'text-green-600'} size={24} />
                         <div>
-                            <p className="text-green-400 text-2xl font-bold">{stats.approved}</p>
-                            <p className="text-green-300 text-sm">Approved</p>
+                            <p className={`text-2xl font-bold ${isDark ? 'text-green-400' : 'text-green-600'}`}>{stats.approved}</p>
+                            <p className={`text-sm ${isDark ? 'text-green-300' : 'text-green-700'}`}>Approved</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-red-900/30 border border-red-700 rounded-lg p-4">
+                <div className={`rounded-lg p-4 border ${isDark ? 'bg-red-900/30 border-red-700' : 'bg-red-50 border-red-200'}`}>
                     <div className="flex items-center gap-3">
-                        <XCircle className="text-red-400" size={24} />
+                        <XCircle className={isDark ? 'text-red-400' : 'text-red-600'} size={24} />
                         <div>
-                            <p className="text-red-400 text-2xl font-bold">{stats.rejected}</p>
-                            <p className="text-red-300 text-sm">Rejected</p>
+                            <p className={`text-2xl font-bold ${isDark ? 'text-red-400' : 'text-red-600'}`}>{stats.rejected}</p>
+                            <p className={`text-sm ${isDark ? 'text-red-300' : 'text-red-700'}`}>Rejected</p>
                         </div>
                     </div>
                 </div>
-                <div className="bg-slate-800 border border-slate-700 rounded-lg p-4">
+                <div className={`rounded-lg p-4 border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
                     <div className="flex items-center gap-3">
-                        <UserX className="text-slate-400" size={24} />
+                        <UserX className={isDark ? 'text-slate-400' : 'text-gray-500'} size={24} />
                         <div>
-                            <p className="text-white text-2xl font-bold">{stats.total}</p>
-                            <p className="text-slate-400 text-sm">Total Requests</p>
+                            <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{stats.total}</p>
+                            <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Total Requests</p>
                         </div>
                     </div>
                 </div>
@@ -165,7 +168,9 @@ const DeletionRequests = () => {
                         onClick={() => setSelectedStatus(status)}
                         className={`px-4 py-2 rounded-lg font-medium transition ${selectedStatus === status
                                 ? "bg-indigo-600 text-white"
-                                : "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                                : isDark
+                                    ? "bg-slate-800 text-slate-400 hover:bg-slate-700"
+                                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                             }`}
                     >
                         {status}
@@ -177,28 +182,28 @@ const DeletionRequests = () => {
             {loading ? (
                 <Loader />
             ) : requests.length === 0 ? (
-                <div className="text-center py-12 bg-slate-800 rounded-lg">
-                    <UserX className="mx-auto text-slate-600 mb-4" size={48} />
-                    <p className="text-slate-400">No {selectedStatus.toLowerCase()} deletion requests</p>
+                <div className={`text-center py-12 rounded-lg border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
+                    <UserX className={`mx-auto mb-4 ${isDark ? 'text-slate-600' : 'text-gray-400'}`} size={48} />
+                    <p className={isDark ? 'text-slate-400' : 'text-gray-500'}>No {selectedStatus.toLowerCase()} deletion requests</p>
                 </div>
             ) : (
-                <div className="bg-slate-800 rounded-lg overflow-hidden">
+                <div className={`rounded-lg overflow-hidden border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
                     <table className="w-full">
-                        <thead className="bg-slate-900">
+                        <thead className={isDark ? 'bg-slate-900' : 'bg-gray-50'}>
                             <tr>
-                                <th className="text-left p-4 text-slate-400 font-medium">User</th>
-                                <th className="text-left p-4 text-slate-400 font-medium">Reason</th>
-                                <th className="text-left p-4 text-slate-400 font-medium">Requested</th>
-                                <th className="text-left p-4 text-slate-400 font-medium">Status</th>
-                                <th className="text-right p-4 text-slate-400 font-medium">Actions</th>
+                                <th className={`text-left p-4 font-medium ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>User</th>
+                                <th className={`text-left p-4 font-medium ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>Reason</th>
+                                <th className={`text-left p-4 font-medium ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>Requested</th>
+                                <th className={`text-left p-4 font-medium ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>Status</th>
+                                <th className={`text-right p-4 font-medium ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {requests.map((request) => (
-                                <tr key={request._id} className="border-t border-slate-700 hover:bg-slate-700/50">
+                                <tr key={request._id} className={`border-t ${isDark ? 'border-slate-700 hover:bg-slate-700/50' : 'border-gray-200 hover:bg-gray-50'}`}>
                                     <td className="p-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 bg-slate-700 rounded-full flex items-center justify-center">
+                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDark ? 'bg-slate-700' : 'bg-gray-200'}`}>
                                                 {request.profileImage ? (
                                                     <img
                                                         src={request.profileImage}
@@ -206,22 +211,22 @@ const DeletionRequests = () => {
                                                         className="w-10 h-10 rounded-full object-cover"
                                                     />
                                                 ) : (
-                                                    <User size={20} className="text-slate-400" />
+                                                    <User size={20} className={isDark ? 'text-slate-400' : 'text-gray-500'} />
                                                 )}
                                             </div>
                                             <div>
-                                                <p className="text-white font-medium">{request.name || "User"}</p>
-                                                <p className="text-slate-400 text-sm">{request.phone}</p>
+                                                <p className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{request.name || "User"}</p>
+                                                <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{request.phone}</p>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="p-4">
-                                        <p className="text-slate-300 text-sm max-w-xs truncate">
+                                        <p className={`text-sm max-w-xs truncate ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
                                             {request.deletionRequest?.reason || "N/A"}
                                         </p>
                                     </td>
                                     <td className="p-4">
-                                        <p className="text-slate-400 text-sm">
+                                        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                                             {request.deletionRequest?.requestedAt
                                                 ? formatDate(request.deletionRequest.requestedAt)
                                                 : "N/A"}
@@ -230,10 +235,10 @@ const DeletionRequests = () => {
                                     <td className="p-4">
                                         <span
                                             className={`px-3 py-1 rounded-full text-xs font-medium ${request.deletionRequest?.status === "PENDING"
-                                                    ? "bg-yellow-900 text-yellow-300"
+                                                    ? isDark ? "bg-yellow-900 text-yellow-300" : "bg-yellow-100 text-yellow-700"
                                                     : request.deletionRequest?.status === "APPROVED"
-                                                        ? "bg-green-900 text-green-300"
-                                                        : "bg-red-900 text-red-300"
+                                                        ? isDark ? "bg-green-900 text-green-300" : "bg-green-100 text-green-700"
+                                                        : isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-700"
                                                 }`}
                                         >
                                             {request.deletionRequest?.status || "N/A"}
@@ -257,23 +262,23 @@ const DeletionRequests = () => {
             {/* View Details Modal */}
             {showModal && selectedRequest && (
                 <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-slate-800 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+                    <div className={`rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
                         {/* Header */}
-                        <div className="flex justify-between items-center p-4 border-b border-slate-700">
-                            <h3 className="text-xl font-bold text-white">Deletion Request Details</h3>
+                        <div className={`flex justify-between items-center p-4 border-b ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
+                            <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Deletion Request Details</h3>
                             <button
                                 onClick={() => setShowModal(false)}
-                                className="p-2 hover:bg-slate-700 rounded-lg"
+                                className={`p-2 rounded-lg ${isDark ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}
                             >
-                                <X size={20} className="text-slate-400" />
+                                <X size={20} className={isDark ? 'text-slate-400' : 'text-gray-500'} />
                             </button>
                         </div>
 
                         {/* Content */}
                         <div className="p-6 space-y-4">
                             {/* User Info */}
-                            <div className="flex items-center gap-4 p-4 bg-slate-900 rounded-lg">
-                                <div className="w-14 h-14 bg-slate-700 rounded-full flex items-center justify-center">
+                            <div className={`flex items-center gap-4 p-4 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
+                                <div className={`w-14 h-14 rounded-full flex items-center justify-center ${isDark ? 'bg-slate-700' : 'bg-gray-200'}`}>
                                     {selectedRequest.profileImage ? (
                                         <img
                                             src={selectedRequest.profileImage}
@@ -281,46 +286,46 @@ const DeletionRequests = () => {
                                             className="w-14 h-14 rounded-full object-cover"
                                         />
                                     ) : (
-                                        <User size={28} className="text-slate-400" />
+                                        <User size={28} className={isDark ? 'text-slate-400' : 'text-gray-500'} />
                                     )}
                                 </div>
                                 <div>
-                                    <p className="text-white text-lg font-medium">{selectedRequest.name || "User"}</p>
-                                    <div className="flex items-center gap-2 text-slate-400">
+                                    <p className={`text-lg font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedRequest.name || "User"}</p>
+                                    <div className={`flex items-center gap-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                                         <Phone size={14} />
                                         <span>{selectedRequest.phone}</span>
                                     </div>
-                                    <span className="text-xs bg-slate-700 px-2 py-0.5 rounded mt-1 inline-block">
+                                    <span className={`text-xs px-2 py-0.5 rounded mt-1 inline-block ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-gray-200 text-gray-600'}`}>
                                         {selectedRequest.userType}
                                     </span>
                                 </div>
                             </div>
 
                             {/* Reason */}
-                            <div className="p-4 bg-slate-900 rounded-lg">
-                                <div className="flex items-center gap-2 text-slate-400 mb-2">
+                            <div className={`p-4 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
+                                <div className={`flex items-center gap-2 mb-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                                     <AlertTriangle size={16} />
                                     <span className="text-sm font-medium">Reason for Deletion</span>
                                 </div>
-                                <p className="text-white">{selectedRequest.deletionRequest?.reason || "N/A"}</p>
+                                <p className={isDark ? 'text-white' : 'text-gray-900'}>{selectedRequest.deletionRequest?.reason || "N/A"}</p>
                             </div>
 
                             {/* Feedback */}
-                            <div className="p-4 bg-slate-900 rounded-lg">
-                                <div className="flex items-center gap-2 text-slate-400 mb-2">
+                            <div className={`p-4 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
+                                <div className={`flex items-center gap-2 mb-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                                     <MessageSquare size={16} />
                                     <span className="text-sm font-medium">User Feedback</span>
                                 </div>
-                                <p className="text-slate-300">{selectedRequest.deletionRequest?.feedback || "No feedback provided"}</p>
+                                <p className={isDark ? 'text-slate-300' : 'text-gray-600'}>{selectedRequest.deletionRequest?.feedback || "No feedback provided"}</p>
                             </div>
 
                             {/* Timestamps */}
-                            <div className="p-4 bg-slate-900 rounded-lg">
-                                <div className="flex items-center gap-2 text-slate-400 mb-2">
+                            <div className={`p-4 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
+                                <div className={`flex items-center gap-2 mb-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                                     <Clock size={16} />
                                     <span className="text-sm font-medium">Request Time</span>
                                 </div>
-                                <p className="text-white">
+                                <p className={isDark ? 'text-white' : 'text-gray-900'}>
                                     {selectedRequest.deletionRequest?.requestedAt
                                         ? formatDate(selectedRequest.deletionRequest.requestedAt)
                                         : "N/A"}
@@ -331,10 +336,10 @@ const DeletionRequests = () => {
                             <div className="text-center">
                                 <span
                                     className={`px-4 py-2 rounded-full font-medium ${selectedRequest.deletionRequest?.status === "PENDING"
-                                            ? "bg-yellow-900 text-yellow-300"
+                                            ? isDark ? "bg-yellow-900 text-yellow-300" : "bg-yellow-100 text-yellow-700"
                                             : selectedRequest.deletionRequest?.status === "APPROVED"
-                                                ? "bg-green-900 text-green-300"
-                                                : "bg-red-900 text-red-300"
+                                                ? isDark ? "bg-green-900 text-green-300" : "bg-green-100 text-green-700"
+                                                : isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-700"
                                         }`}
                                 >
                                     {selectedRequest.deletionRequest?.status}
@@ -344,7 +349,7 @@ const DeletionRequests = () => {
 
                         {/* Actions */}
                         {selectedRequest.deletionRequest?.status === "PENDING" && (
-                            <div className="p-4 border-t border-slate-700 flex gap-3">
+                            <div className={`p-4 border-t flex gap-3 ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
                                 <button
                                     onClick={() => openConfirmModal("approve")}
                                     className="flex-1 py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium flex items-center justify-center gap-2"
@@ -363,7 +368,7 @@ const DeletionRequests = () => {
                         )}
 
                         {selectedRequest.deletionRequest?.status === "APPROVED" && (
-                            <div className="p-4 border-t border-slate-700">
+                            <div className={`p-4 border-t ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
                                 <button
                                     onClick={() => openConfirmModal("permanent")}
                                     className="w-full py-3 bg-red-800 hover:bg-red-900 text-white rounded-lg font-medium flex items-center justify-center gap-2"
@@ -380,26 +385,26 @@ const DeletionRequests = () => {
             {/* Confirm Action Modal */}
             {showConfirmModal && selectedRequest && (
                 <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-[60] p-4">
-                    <div className="bg-slate-800 rounded-xl w-full max-w-md p-6">
+                    <div className={`rounded-xl w-full max-w-md p-6 ${isDark ? 'bg-slate-800' : 'bg-white'}`}>
                         <div className="text-center mb-6">
                             <div
                                 className={`w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 ${confirmAction === "approve"
-                                        ? "bg-green-900"
+                                        ? isDark ? "bg-green-900" : "bg-green-100"
                                         : confirmAction === "reject"
-                                            ? "bg-red-900"
-                                            : "bg-red-950"
+                                            ? isDark ? "bg-red-900" : "bg-red-100"
+                                            : isDark ? "bg-red-950" : "bg-red-200"
                                     }`}
                             >
-                                {confirmAction === "approve" && <CheckCircle size={32} className="text-green-400" />}
-                                {confirmAction === "reject" && <XCircle size={32} className="text-red-400" />}
-                                {confirmAction === "permanent" && <Trash2 size={32} className="text-red-500" />}
+                                {confirmAction === "approve" && <CheckCircle size={32} className={isDark ? 'text-green-400' : 'text-green-600'} />}
+                                {confirmAction === "reject" && <XCircle size={32} className={isDark ? 'text-red-400' : 'text-red-600'} />}
+                                {confirmAction === "permanent" && <Trash2 size={32} className={isDark ? 'text-red-500' : 'text-red-700'} />}
                             </div>
-                            <h3 className="text-xl font-bold text-white mb-2">
+                            <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 {confirmAction === "approve" && "Approve Deletion Request?"}
                                 {confirmAction === "reject" && "Reject Deletion Request?"}
                                 {confirmAction === "permanent" && "Permanently Delete User?"}
                             </h3>
-                            <p className="text-slate-400">
+                            <p className={isDark ? 'text-slate-400' : 'text-gray-500'}>
                                 {confirmAction === "approve" &&
                                     "This will deactivate the user's account. They won't be able to log in."}
                                 {confirmAction === "reject" &&
@@ -412,7 +417,7 @@ const DeletionRequests = () => {
                         <div className="flex gap-3">
                             <button
                                 onClick={() => setShowConfirmModal(false)}
-                                className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg font-medium"
+                                className={`flex-1 py-3 rounded-lg font-medium ${isDark ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
                             >
                                 Cancel
                             </button>

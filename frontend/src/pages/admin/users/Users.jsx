@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchUsers, updateUser, deleteUser, togglePhonePrivacy } from "../../../api/user.api";
+import { useTheme } from "../../../context/ThemeContext";
 import Loader from "../../../components/common/Loader";
 import toast, { Toaster } from "react-hot-toast";
 import {
@@ -25,6 +26,7 @@ const Users = () => {
   const [selectedUserType, setSelectedUserType] = useState("All");
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const { isDark } = useTheme();
 
   const userTypes = [
     "All",
@@ -32,10 +34,6 @@ const Users = () => {
     "BUILDER",
     "INDIVIDUAL"
   ];
-
-  useEffect(() => {
-    loadData();
-  }, [selectedUserType]);
 
   const loadData = async () => {
     try {
@@ -51,6 +49,11 @@ const Users = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUserType]);
 
   // 🔒 Block / Unblock
   const toggleBlock = async (user) => {
@@ -92,71 +95,71 @@ const Users = () => {
   // Get user type badge color
   const getUserTypeBadge = (type) => {
     const colors = {
-      AGENT: "bg-purple-900 text-purple-300",
-      BUILDER: "bg-blue-900 text-blue-300",
-      INDIVIDUAL: "bg-green-900 text-green-300"
+      AGENT: isDark ? "bg-purple-900 text-purple-300" : "bg-purple-100 text-purple-800",
+      BUILDER: isDark ? "bg-blue-900 text-blue-300" : "bg-blue-100 text-blue-800",
+      INDIVIDUAL: isDark ? "bg-green-900 text-green-300" : "bg-green-100 text-green-800"
     };
-    return colors[type] || "bg-slate-700 text-slate-300";
+    return colors[type] || (isDark ? "bg-slate-700 text-slate-300" : "bg-gray-100 text-gray-700");
   };
 
   if (loading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
       <Toaster position="top-right" />
 
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-3">
           <UsersIcon className="text-indigo-500" size={32} />
-          <h1 className="text-3xl font-bold text-white">All Users</h1>
+          <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>All Users</h1>
         </div>
-        <p className="text-slate-400 mt-2">Manage all registered users</p>
+        <p className={`mt-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Manage all registered users</p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
+        <div className={`rounded-lg p-6 border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-900/50 rounded-lg">
-              <UsersIcon className="text-indigo-400" size={24} />
+            <div className={`p-3 rounded-lg ${isDark ? 'bg-indigo-900/50' : 'bg-indigo-100'}`}>
+              <UsersIcon className={isDark ? 'text-indigo-400' : 'text-indigo-600'} size={24} />
             </div>
             <div>
-              <p className="text-slate-400 text-sm">Total Users</p>
-              <p className="text-2xl font-bold text-indigo-400">{stats?.total || 0}</p>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Total Users</p>
+              <p className={`text-2xl font-bold ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>{stats?.total || 0}</p>
             </div>
           </div>
         </div>
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
+        <div className={`rounded-lg p-6 border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-green-900/50 rounded-lg">
-              <UserCheck className="text-green-400" size={24} />
+            <div className={`p-3 rounded-lg ${isDark ? 'bg-green-900/50' : 'bg-green-100'}`}>
+              <UserCheck className={isDark ? 'text-green-400' : 'text-green-600'} size={24} />
             </div>
             <div>
-              <p className="text-slate-400 text-sm">Active Users</p>
-              <p className="text-2xl font-bold text-green-400">{stats?.active || 0}</p>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Active Users</p>
+              <p className={`text-2xl font-bold ${isDark ? 'text-green-400' : 'text-green-600'}`}>{stats?.active || 0}</p>
             </div>
           </div>
         </div>
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
+        <div className={`rounded-lg p-6 border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-red-900/50 rounded-lg">
-              <UserX className="text-red-400" size={24} />
+            <div className={`p-3 rounded-lg ${isDark ? 'bg-red-900/50' : 'bg-red-100'}`}>
+              <UserX className={isDark ? 'text-red-400' : 'text-red-600'} size={24} />
             </div>
             <div>
-              <p className="text-slate-400 text-sm">Blocked Users</p>
-              <p className="text-2xl font-bold text-red-400">{stats?.blocked || 0}</p>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Blocked Users</p>
+              <p className={`text-2xl font-bold ${isDark ? 'text-red-400' : 'text-red-600'}`}>{stats?.blocked || 0}</p>
             </div>
           </div>
         </div>
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-6">
+        <div className={`rounded-lg p-6 border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-yellow-900/50 rounded-lg">
-              <Crown className="text-yellow-400" size={24} />
+            <div className={`p-3 rounded-lg ${isDark ? 'bg-yellow-900/50' : 'bg-yellow-100'}`}>
+              <Crown className={isDark ? 'text-yellow-400' : 'text-yellow-600'} size={24} />
             </div>
             <div>
-              <p className="text-slate-400 text-sm">With Active Plan</p>
-              <p className="text-2xl font-bold text-yellow-400">{stats?.withPlan || 0}</p>
+              <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>With Active Plan</p>
+              <p className={`text-2xl font-bold ${isDark ? 'text-yellow-400' : 'text-yellow-600'}`}>{stats?.withPlan || 0}</p>
             </div>
           </div>
         </div>
@@ -170,7 +173,9 @@ const Users = () => {
             onClick={() => setSelectedUserType(type)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition ${selectedUserType === type
               ? "bg-indigo-600 text-white"
-              : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-slate-700"
+              : isDark 
+                ? "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white border border-slate-700"
+                : "bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-gray-200"
               }`}
           >
             {type.replace(/_/g, " ")}
@@ -182,24 +187,24 @@ const Users = () => {
       </div>
 
       {/* Users Table */}
-      <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
+      <div className={`rounded-lg overflow-hidden border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
         {users && users.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-slate-900 border-b border-slate-700">
+              <thead className={`border-b ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-gray-50 border-gray-200'}`}>
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">User</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Phone</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">User Type</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">GST Number</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Active Plan</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Status</th>
-                  <th className="px-6 py-4 text-left text-sm font-semibold text-slate-300">Actions</th>
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>User</th>
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Phone</th>
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>User Type</th>
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>GST Number</th>
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Active Plan</th>
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Status</th>
+                  <th className={`px-6 py-4 text-left text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
-                  <tr key={user._id} className="border-b border-slate-700 hover:bg-slate-700/50 transition">
+                  <tr key={user._id} className={`border-b transition ${isDark ? 'border-slate-700 hover:bg-slate-700/50' : 'border-gray-200 hover:bg-gray-50'}`}>
                     {/* User with Profile Image */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
@@ -214,14 +219,14 @@ const Users = () => {
                             <User size={18} className="text-white" />
                           </div>
                         )}
-                        <span className="text-white font-medium">{user.name || "N/A"}</span>
+                        <span className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{user.name || "N/A"}</span>
                       </div>
                     </td>
 
                     {/* Phone */}
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2 text-slate-300">
-                        <Phone size={14} className="text-green-400" />
+                      <div className={`flex items-center gap-2 ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+                        <Phone size={14} className="text-green-500" />
                         {user.phone || "N/A"}
                       </div>
                     </td>
@@ -237,11 +242,11 @@ const Users = () => {
                     <td className="px-6 py-4">
                       {user.gstNumber ? (
                         <div className="flex items-center gap-2">
-                          <Building2 size={14} className="text-cyan-400" />
-                          <span className="text-cyan-300 font-mono text-sm">{user.gstNumber}</span>
+                          <Building2 size={14} className={isDark ? 'text-cyan-400' : 'text-cyan-600'} />
+                          <span className={`font-mono text-sm ${isDark ? 'text-cyan-300' : 'text-cyan-700'}`}>{user.gstNumber}</span>
                         </div>
                       ) : (
-                        <span className="text-slate-500 text-sm">Not provided</span>
+                        <span className={`text-sm ${isDark ? 'text-slate-500' : 'text-gray-400'}`}>Not provided</span>
                       )}
                     </td>
 
@@ -249,22 +254,22 @@ const Users = () => {
                     <td className="px-6 py-4">
                       {user.activePlan ? (
                         <div className="flex items-center gap-2">
-                          <Crown size={14} className="text-yellow-400" />
+                          <Crown size={14} className={isDark ? 'text-yellow-400' : 'text-yellow-600'} />
                           <div>
-                            <span className="text-yellow-300 font-medium">{user.activePlan.name}</span>
-                            <p className="text-xs text-slate-400">₹{user.activePlan.price}</p>
+                            <span className={`font-medium ${isDark ? 'text-yellow-300' : 'text-yellow-700'}`}>{user.activePlan.name}</span>
+                            <p className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>₹{user.activePlan.price}</p>
                           </div>
                         </div>
                       ) : (
-                        <span className="text-slate-500 text-sm">No Plan</span>
+                        <span className={`text-sm ${isDark ? 'text-slate-500' : 'text-gray-400'}`}>No Plan</span>
                       )}
                     </td>
 
                     {/* Status */}
                     <td className="px-6 py-4">
                       <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${user.isBlocked
-                        ? "bg-red-900 text-red-300"
-                        : "bg-green-900 text-green-300"
+                        ? (isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-800")
+                        : (isDark ? "bg-green-900 text-green-300" : "bg-green-100 text-green-800")
                         }`}>
                         {user.isBlocked ? "Blocked" : "Active"}
                       </span>
@@ -315,8 +320,8 @@ const Users = () => {
           </div>
         ) : (
           <div className="text-center py-12">
-            <UsersIcon className="mx-auto text-slate-600 mb-4" size={48} />
-            <p className="text-slate-400">No users found</p>
+            <UsersIcon className={`mx-auto mb-4 ${isDark ? 'text-slate-600' : 'text-gray-400'}`} size={48} />
+            <p className={isDark ? 'text-slate-400' : 'text-gray-500'}>No users found</p>
           </div>
         )}
       </div>
@@ -324,15 +329,15 @@ const Users = () => {
       {/* User Detail Modal */}
       {showModal && selectedUser && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 border border-slate-700 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+          <div className={`rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200'}`}>
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-6 border-b border-slate-700">
-              <h2 className="text-xl font-bold text-white">User Details</h2>
+            <div className={`flex items-center justify-between p-6 border-b ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
+              <h2 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>User Details</h2>
               <button
                 onClick={closeModal}
-                className="p-2 hover:bg-slate-700 rounded-lg transition"
+                className={`p-2 rounded-lg transition ${isDark ? 'hover:bg-slate-700' : 'hover:bg-gray-100'}`}
               >
-                <X size={20} className="text-slate-400" />
+                <X size={20} className={isDark ? 'text-slate-400' : 'text-gray-500'} />
               </button>
             </div>
 
@@ -352,7 +357,7 @@ const Users = () => {
                   </div>
                 )}
                 <div>
-                  <h3 className="text-xl font-bold text-white">{selectedUser.name || "N/A"}</h3>
+                  <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedUser.name || "N/A"}</h3>
                   <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium mt-2 ${getUserTypeBadge(selectedUser.userType)}`}>
                     {selectedUser.userType?.replace(/_/g, " ") || "N/A"}
                   </span>
@@ -362,21 +367,21 @@ const Users = () => {
               {/* Details Grid */}
               <div className="space-y-4">
                 {/* Phone with Privacy Toggle */}
-                <div className="flex items-center justify-between p-3 bg-slate-900 rounded-lg">
+                <div className={`flex items-center justify-between p-3 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
                   <div className="flex items-center gap-3">
                     {selectedUser.isPhonePrivate ? (
-                      <PhoneOff size={18} className="text-orange-400" />
+                      <PhoneOff size={18} className="text-orange-500" />
                     ) : (
-                      <Phone size={18} className="text-green-400" />
+                      <Phone size={18} className="text-green-500" />
                     )}
                     <div>
-                      <p className="text-slate-400 text-sm">Phone Number</p>
-                      <p className="text-white font-medium">{selectedUser.phone || "N/A"}</p>
+                      <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Phone Number</p>
+                      <p className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedUser.phone || "N/A"}</p>
                     </div>
                   </div>
                   {/* Privacy Toggle */}
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs ${selectedUser.isPhonePrivate ? "text-orange-400" : "text-green-400"}`}>
+                    <span className={`text-xs ${selectedUser.isPhonePrivate ? "text-orange-500" : "text-green-500"}`}>
                       {selectedUser.isPhonePrivate ? "Private" : "Public"}
                     </span>
                     <button
@@ -411,43 +416,43 @@ const Users = () => {
 
                 {/* GST Number */}
                 {selectedUser.gstNumber && (
-                  <div className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg">
-                    <Building2 size={18} className="text-cyan-400" />
+                  <div className={`flex items-center gap-3 p-3 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
+                    <Building2 size={18} className={isDark ? 'text-cyan-400' : 'text-cyan-600'} />
                     <div>
-                      <p className="text-slate-400 text-sm">GST Number</p>
-                      <p className="text-cyan-300 font-mono">{selectedUser.gstNumber}</p>
+                      <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>GST Number</p>
+                      <p className={`font-mono ${isDark ? 'text-cyan-300' : 'text-cyan-700'}`}>{selectedUser.gstNumber}</p>
                     </div>
                   </div>
                 )}
 
                 {/* Active Plan */}
-                <div className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg">
-                  <Crown size={18} className="text-yellow-400" />
+                <div className={`flex items-center gap-3 p-3 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
+                  <Crown size={18} className={isDark ? 'text-yellow-400' : 'text-yellow-600'} />
                   <div>
-                    <p className="text-slate-400 text-sm">Active Plan</p>
+                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Active Plan</p>
                     {selectedUser.activePlan ? (
                       <div>
-                        <p className="text-yellow-300 font-medium">{selectedUser.activePlan.name}</p>
-                        <p className="text-slate-400 text-sm">₹{selectedUser.activePlan.price} • {selectedUser.activePlan.duration} days</p>
+                        <p className={`font-medium ${isDark ? 'text-yellow-300' : 'text-yellow-700'}`}>{selectedUser.activePlan.name}</p>
+                        <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>₹{selectedUser.activePlan.price} • {selectedUser.activePlan.duration} days</p>
                       </div>
                     ) : (
-                      <p className="text-slate-500">No active plan</p>
+                      <p className={isDark ? 'text-slate-500' : 'text-gray-400'}>No active plan</p>
                     )}
                   </div>
                 </div>
 
                 {/* Status */}
-                <div className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg">
+                <div className={`flex items-center gap-3 p-3 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
                   {selectedUser.isBlocked ? (
-                    <ShieldOff size={18} className="text-red-400" />
+                    <ShieldOff size={18} className="text-red-500" />
                   ) : (
-                    <Shield size={18} className="text-green-400" />
+                    <Shield size={18} className="text-green-500" />
                   )}
                   <div>
-                    <p className="text-slate-400 text-sm">Status</p>
+                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Status</p>
                     <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${selectedUser.isBlocked
-                      ? "bg-red-900 text-red-300"
-                      : "bg-green-900 text-green-300"
+                      ? (isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-800")
+                      : (isDark ? "bg-green-900 text-green-300" : "bg-green-100 text-green-800")
                       }`}>
                       {selectedUser.isBlocked ? "Blocked" : "Active"}
                     </span>
@@ -455,11 +460,11 @@ const Users = () => {
                 </div>
 
                 {/* Created At */}
-                <div className="flex items-center gap-3 p-3 bg-slate-900 rounded-lg">
-                  <UsersIcon size={18} className="text-indigo-400" />
+                <div className={`flex items-center gap-3 p-3 rounded-lg ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
+                  <UsersIcon size={18} className="text-indigo-500" />
                   <div>
-                    <p className="text-slate-400 text-sm">Joined</p>
-                    <p className="text-white">{new Date(selectedUser.createdAt).toLocaleDateString("en-IN", {
+                    <p className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Joined</p>
+                    <p className={isDark ? 'text-white' : 'text-gray-900'}>{new Date(selectedUser.createdAt).toLocaleDateString("en-IN", {
                       day: "numeric",
                       month: "short",
                       year: "numeric"

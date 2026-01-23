@@ -1,126 +1,139 @@
-const admin = require("../config/firebase");
 const User = require("../models/user.model");
+const OTP = require("../models/OTP.model");
 const jwt = require("jsonwebtoken");
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const twilioPhone = process.env.TWILIO_PHONE;
+const client = require('twilio')(accountSid, authToken);
 
 /**
  * SEND OTP
- * NOTE: Actual OTP Firebase SDK (Flutter) se jayega
+ * Generates and sends OTP via Twilio SMS
  */
 exports.sendOTP = async (req, res) => {
   try {
     const { phone } = req.body;
 
-    if (!phone) {
+    // Validate phone number
+    if (!phone || phone.trim() === "") {
       return res.status(400).json({ message: "Phone number required" });
     }
 
+    // Format phone number (add country code if not present)
+    let formattedPhone = phone.startsWith('+') ? phone : '+91' + phone;
+
+    // Check if user already exists
+    // const existingUser = await User.findOne({ phone: formattedPhone });
+
+    // if (existingUser) {
+    //   return res.status(400).json({ message: "User with this phone number already exists! Please login." });
+    // }
+
+    // Generate 6-digit OTP
+    const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // Save OTP to database with expiry (10 minutes)
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    await OTP.create({
+      phone: formattedPhone,
+      otp: generatedOTP,
+      expiresAt: otpExpiry
+    });
+
+    // Send OTP via Twilio
+    try {
+      await client.messages.create({
+        body: `Your OTP verification code is: ${generatedOTP}. Valid for 10 minutes.`,
+        from: twilioPhone,
+        to: formattedPhone
+      });
+    } catch (twilioError) {
+      console.error("Twilio error:", twilioError.message);
+      console.error("Full error:", twilioError);
+      // For development, return OTP in response (REMOVE IN PRODUCTION)
+      console.log("DEBUG - OTP:", generatedOTP);
+      return res.status(200).json({
+        message: "OTP generated successfully but SMS sending failed",
+        error: twilioError.message,
+        debug: generatedOTP
+      });
+    }
+
     return res.status(200).json({
-      message: "OTP sent successfully",
-      note: "OTP Firebase SDK (Flutter) se send hota hai"
+      message: "OTP sent successfully to " + formattedPhone,
+      phone: formattedPhone
     });
 
   } catch (error) {
+    console.error("Send OTP error:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
 /**
- * VERIFY OTP (Firebase Token Verify)
+ * VERIFY OTP
+ * Verifies OTP and creates/logs in user
  */
 exports.verifyOTP = async (req, res) => {
   try {
-    const { idToken } = req.body;
+    const { phone, otp } = req.body;
 
-    if (!idToken) {
-      return res.status(400).json({ message: "Token required" });
+    if (!phone || !otp) {
+      return res.status(400).json({ message: "Phone number and OTP required" });
     }
 
-    // 🔥 Verify Firebase Token
-    if (!admin) {
-      return res.status(503).json({
-        message: "Firebase authentication not available. Please configure Firebase credentials.",
-        note: "Add FIREBASE_SERVICE_ACCOUNT to .env or serviceAccountKey.json"
-      });
-    }
+    // Format phone number
+    let formattedPhone = phone.startsWith('+') ? phone : '+91' + phone;
 
-    const decoded = await admin.auth().verifyIdToken(idToken);
-
-    const phone = decoded.phone_number;
-
-    let user = await User.findOne({ phone });
-    let isNewUser = false;
-
-    if (!user) {
-      user = await User.create({ phone });
-      isNewUser = true;
-    }
-
-    // Generate JWT token for the user
-    const token = jwt.sign(
-      { id: user._id, phone: user.phone, role: "USER" },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    // Check if user has completed profile (firstName exists)
-    const isProfileComplete = user.firstName && user.firstName.trim() !== "";
-
-    res.status(200).json({
-      success: true,
-      message: "Authentication successful",
-      token,
-      user,
-      isNewUser,
-      isProfileComplete
+    // Find valid OTP
+    const otpRecord = await OTP.findOne({
+      phone: formattedPhone,
+      otp: otp,
+      expiresAt: { $gt: new Date() }
     });
 
-  } catch (error) {
-    console.error("Verify OTP Error:", error);
-    res.status(401).json({ message: "Invalid or expired token" });
-  }
-};
-
-/**
- * DEV LOGIN - For testing purposes only
- * Login with phone number directly (no OTP verification)
- * ⚠️ REMOVE IN PRODUCTION
- */
-exports.devLogin = async (req, res) => {
-  try {
-    const { phone, name, userType } = req.body;
-
-    if (!phone) {
-      return res.status(400).json({ message: "Phone number required" });
+    if (!otpRecord) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
     }
 
-    // Find or create user
-    let user = await User.findOne({ phone });
+    // Delete used OTP
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    // Check if user exists
+    let user = await User.findOne({ phone: formattedPhone });
 
     if (!user) {
-      // Create new user if not exists
+      // Create new user
       user = await User.create({
-        phone,
-        name: name || "Test User",
-        userType: userType || "INDIVIDUAL"
+        phone: formattedPhone,
+        name: "User " + formattedPhone.slice(-4),
+        userType: "INDIVIDUAL"
       });
     }
 
     // Generate JWT token
     const token = jwt.sign(
       { id: user._id, phone: user.phone, role: "USER" },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "your_secret_key",
       { expiresIn: "7d" }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: "Dev login successful",
+      message: user.isNew ? "User created successfully" : "Login successful",
       token,
-      user
+      user: {
+        _id: user._id,
+        phone: user.phone,
+        name: user.name,
+        userType: user.userType
+      }
     });
 
   } catch (error) {
-    console.error("Dev login error:", error);
+    console.error("Verify OTP error:", error);
     res.status(500).json({ message: error.message });
   }
 };
+
+

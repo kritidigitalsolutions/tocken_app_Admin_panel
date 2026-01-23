@@ -4,6 +4,7 @@ import DataTable from "../../../components/tables/DataTable";
 import Modal from "../../../components/modals/Modal";
 import Button from "../../../components/common/Button";
 import Loader from "../../../components/common/Loader";
+import { useTheme } from "../../../context/ThemeContext";
 
 import {
   fetchBanners,
@@ -23,6 +24,7 @@ const initialForm = {
 const Banners = () => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { isDark } = useTheme();
 
   const [openForm, setOpenForm] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
@@ -137,7 +139,7 @@ const Banners = () => {
       <Toaster position="top-right" />
 
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Banners</h2>
+        <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Banners</h2>
         <Button onClick={() => setOpenForm(true)}>+ Add Banner</Button>
       </div>
 
@@ -146,7 +148,7 @@ const Banners = () => {
       ) : (
         <DataTable columns={["Preview", "Title", "Status", "Actions"]}>
           {banners.map((banner) => (
-            <tr key={banner._id}>
+            <tr key={banner._id} className={`border-b ${isDark ? 'border-slate-700 hover:bg-slate-800/50' : 'border-gray-200 hover:bg-gray-50'}`}>
               <td className="p-4">
                 <img
                   src={banner.image}
@@ -154,7 +156,7 @@ const Banners = () => {
                   className="w-32 h-14 object-cover rounded"
                 />
               </td>
-              <td className="p-4">{banner.title}</td>
+              <td className={`p-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>{banner.title}</td>
               <td className="p-4">
                 <span
                   className={`px-2 py-1 rounded text-xs ${
@@ -209,7 +211,7 @@ const Banners = () => {
         <div className="space-y-4">
           <input
             placeholder="Title"
-            className="w-full p-2 rounded bg-slate-800"
+            className={`w-full p-2 rounded border transition-colors duration-200 ${isDark ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-400 focus:border-blue-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'}`}
             value={formData.title}
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
@@ -218,7 +220,7 @@ const Banners = () => {
 
           <input
             placeholder="Redirect URL"
-            className="w-full p-2 rounded bg-slate-800"
+            className={`w-full p-2 rounded border transition-colors duration-200 ${isDark ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-400 focus:border-blue-500' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'}`}
             value={formData.redirectUrl}
             onChange={(e) =>
               setFormData({ ...formData, redirectUrl: e.target.value })
@@ -244,7 +246,7 @@ const Banners = () => {
         title="Delete Banner"
         onClose={() => setOpenDelete(false)}
       >
-        <p className="mb-4 text-sm">
+        <p className={`mb-4 text-sm ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
           Are you sure you want to delete this banner?
         </p>
         <div className="flex justify-end gap-2">

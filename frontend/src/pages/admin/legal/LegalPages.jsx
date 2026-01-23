@@ -6,11 +6,13 @@ import Button from "../../../components/common/Button";
 import Loader from "../../../components/common/Loader";
 import { getLegal } from "../../../api/legal.api";
 import { updateLegal } from "../../../api/legal.api";
+import { useTheme } from "../../../context/ThemeContext";
 
 const LegalPages = () => {
   const [privacy, setPrivacy] = useState({ content: "", status: "", updatedAt: "" });
   const [terms, setTerms] = useState({ content: "", status: "", updatedAt: "" });
   const [loading, setLoading] = useState(true);
+  const { isDark } = useTheme();
   useEffect(() => {
     Promise.all([
       getLegal("privacy").then((res) => setPrivacy(res.data.legal)),
@@ -39,7 +41,7 @@ const updateTerms = async () => {
 
   return (
     <div className="space-y-10">
-      <h2 className="text-2xl font-bold">Legal Pages</h2>
+      <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Legal Pages</h2>
 
       {loading ? (
         <Loader />
@@ -47,10 +49,10 @@ const updateTerms = async () => {
         <>
           {/* PRIVACY POLICY */}
           {privacy && (
-      <section className="bg-slate-800 rounded-lg p-6">
+      <section className={`rounded-lg p-6 border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold">Privacy Policy</h3>
-          <span className="text-xs text-slate-400">
+          <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Privacy Policy</h3>
+          <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
             Last updated: {privacy.updatedAt}
           </span>
         </div>
@@ -85,10 +87,10 @@ const updateTerms = async () => {
 
       {/* TERMS & CONDITIONS */}
       {terms && (
-      <section className="bg-slate-800 rounded-lg p-6">
+      <section className={`rounded-lg p-6 border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-semibold">Terms & Conditions</h3>
-          <span className="text-xs text-slate-400">
+          <h3 className={`text-xl font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>Terms & Conditions</h3>
+          <span className={`text-xs ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
             Last updated: {terms.updatedAt}
           </span>
         </div>

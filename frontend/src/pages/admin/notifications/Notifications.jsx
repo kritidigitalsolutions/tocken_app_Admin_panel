@@ -4,6 +4,7 @@ import DataTable from "../../../components/tables/DataTable";
 import Modal from "../../../components/modals/Modal";
 import Button from "../../../components/common/Button";
 import Loader from "../../../components/common/Loader";
+import { useTheme } from "../../../context/ThemeContext";
 
 import {
     fetchNotifications,
@@ -44,6 +45,7 @@ const Notifications = () => {
     const [users, setUsers] = useState([]);
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const { isDark } = useTheme();
 
     const [openForm, setOpenForm] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
@@ -192,27 +194,27 @@ const Notifications = () => {
             {/* Stats Cards */}
             {stats && (
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-slate-800 p-4 rounded-lg">
-                        <p className="text-gray-400 text-sm">Total Notifications</p>
-                        <p className="text-2xl font-bold">{stats.total}</p>
+                    <div className={`p-4 rounded-lg border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
+                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Total Notifications</p>
+                        <p className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{stats.total}</p>
                     </div>
-                    <div className="bg-slate-800 p-4 rounded-lg">
-                        <p className="text-gray-400 text-sm">Active</p>
+                    <div className={`p-4 rounded-lg border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
+                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Active</p>
                         <p className="text-2xl font-bold text-green-500">{stats.active}</p>
                     </div>
-                    <div className="bg-slate-800 p-4 rounded-lg">
-                        <p className="text-gray-400 text-sm">This Week</p>
+                    <div className={`p-4 rounded-lg border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
+                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>This Week</p>
                         <p className="text-2xl font-bold text-blue-500">{stats.recentWeek}</p>
                     </div>
-                    <div className="bg-slate-800 p-4 rounded-lg">
-                        <p className="text-gray-400 text-sm">Inactive</p>
-                        <p className="text-2xl font-bold text-gray-500">{stats.inactive}</p>
+                    <div className={`p-4 rounded-lg border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
+                        <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Inactive</p>
+                        <p className={`text-2xl font-bold ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{stats.inactive}</p>
                     </div>
                 </div>
             )}
 
             <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Notifications</h2>
+                <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Notifications</h2>
                 <Button onClick={() => {
                     setFormData(initialForm);
                     setSelectedNotification(null);
@@ -228,11 +230,11 @@ const Notifications = () => {
             ) : (
                 <DataTable columns={["Title", "Type", "Target", "Created", "Actions"]}>
                     {notifications.map((notification) => (
-                        <tr key={notification._id}>
+                        <tr key={notification._id} className={`border-b ${isDark ? 'border-slate-700 hover:bg-slate-800/50' : 'border-gray-200 hover:bg-gray-50'}`}>
                             <td className="p-4">
                                 <div>
-                                    <p className="font-medium">{notification.title}</p>
-                                    <p className="text-gray-400 text-sm truncate max-w-xs">
+                                    <p className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{notification.title}</p>
+                                    <p className={`text-sm truncate max-w-xs ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                         {notification.message}
                                     </p>
                                 </div>
@@ -248,12 +250,12 @@ const Notifications = () => {
                                         {notification.targetUser.name || notification.targetUser.phone}
                                     </span>
                                 ) : (
-                                    <span className="text-gray-400">
+                                    <span className={isDark ? 'text-gray-400' : 'text-gray-500'}>
                                         {notification.targetUserType || "ALL"}
                                     </span>
                                 )}
                             </td>
-                            <td className="p-4 text-gray-400 text-sm">
+                            <td className={`p-4 text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                                 {formatDate(notification.createdAt)}
                             </td>
                             <td className="p-4 flex gap-2">
@@ -309,22 +311,22 @@ const Notifications = () => {
                 <div className="space-y-4">
                     <input
                         placeholder="Notification Title"
-                        className="w-full p-2 rounded bg-slate-800"
+                        className={`w-full p-2 rounded border transition-colors ${isDark ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'}`}
                         value={formData.title}
                         onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     />
 
                     <textarea
                         placeholder="Notification Message"
-                        className="w-full p-2 rounded bg-slate-800 min-h-[100px]"
+                        className={`w-full p-2 rounded border transition-colors min-h-[100px] ${isDark ? 'bg-slate-800 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'}`}
                         value={formData.message}
                         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     />
 
                     <div>
-                        <label className="text-sm text-gray-400 block mb-1">Type</label>
+                        <label className={`text-sm block mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Type</label>
                         <select
-                            className="w-full p-2 rounded bg-slate-800"
+                            className={`w-full p-2 rounded border transition-colors ${isDark ? 'bg-slate-800 border-slate-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                             value={formData.type}
                             onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                         >
@@ -341,16 +343,16 @@ const Notifications = () => {
                             checked={sendToSpecificUser}
                             onChange={(e) => setSendToSpecificUser(e.target.checked)}
                         />
-                        <label htmlFor="specificUser" className="text-sm">
+                        <label htmlFor="specificUser" className={`text-sm ${isDark ? 'text-white' : 'text-gray-700'}`}>
                             Send to specific user
                         </label>
                     </div>
 
                     {sendToSpecificUser ? (
                         <div>
-                            <label className="text-sm text-gray-400 block mb-1">Select User</label>
+                            <label className={`text-sm block mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Select User</label>
                             <select
-                                className="w-full p-2 rounded bg-slate-800"
+                                className={`w-full p-2 rounded border transition-colors ${isDark ? 'bg-slate-800 border-slate-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                                 value={formData.targetUserId}
                                 onChange={(e) => setFormData({ ...formData, targetUserId: e.target.value })}
                             >
@@ -364,9 +366,9 @@ const Notifications = () => {
                         </div>
                     ) : (
                         <div>
-                            <label className="text-sm text-gray-400 block mb-1">Target User Type</label>
+                            <label className={`text-sm block mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Target User Type</label>
                             <select
-                                className="w-full p-2 rounded bg-slate-800"
+                                className={`w-full p-2 rounded border transition-colors ${isDark ? 'bg-slate-800 border-slate-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                                 value={formData.targetUserType}
                                 onChange={(e) => setFormData({ ...formData, targetUserType: e.target.value })}
                             >
@@ -392,23 +394,23 @@ const Notifications = () => {
                 {selectedNotification && (
                     <div className="space-y-4">
                         <div>
-                            <p className="text-gray-400 text-sm">Title</p>
-                            <p className="font-medium">{selectedNotification.title}</p>
+                            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Title</p>
+                            <p className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedNotification.title}</p>
                         </div>
                         <div>
-                            <p className="text-gray-400 text-sm">Message</p>
-                            <p>{selectedNotification.message}</p>
+                            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Message</p>
+                            <p className={isDark ? 'text-white' : 'text-gray-900'}>{selectedNotification.message}</p>
                         </div>
                         <div className="flex gap-4">
                             <div>
-                                <p className="text-gray-400 text-sm">Type</p>
+                                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Type</p>
                                 <span className={`px-2 py-1 rounded text-xs ${getTypeColor(selectedNotification.type)}`}>
                                     {selectedNotification.type}
                                 </span>
                             </div>
                             <div>
-                                <p className="text-gray-400 text-sm">Target</p>
-                                <p>
+                                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Target</p>
+                                <p className={isDark ? 'text-white' : 'text-gray-900'}>
                                     {selectedNotification.targetUser
                                         ? selectedNotification.targetUser.name || selectedNotification.targetUser.phone
                                         : selectedNotification.targetUserType || "ALL"}
@@ -416,13 +418,13 @@ const Notifications = () => {
                             </div>
                         </div>
                         <div>
-                            <p className="text-gray-400 text-sm">Created At</p>
-                            <p>{formatDate(selectedNotification.createdAt)}</p>
+                            <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Created At</p>
+                            <p className={isDark ? 'text-white' : 'text-gray-900'}>{formatDate(selectedNotification.createdAt)}</p>
                         </div>
                         {selectedNotification.createdBy && (
                             <div>
-                                <p className="text-gray-400 text-sm">Created By</p>
-                                <p>{selectedNotification.createdBy.name || selectedNotification.createdBy.email}</p>
+                                <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Created By</p>
+                                <p className={isDark ? 'text-white' : 'text-gray-900'}>{selectedNotification.createdBy.name || selectedNotification.createdBy.email}</p>
                             </div>
                         )}
                     </div>
@@ -435,7 +437,7 @@ const Notifications = () => {
                 title="Delete Notification"
                 onClose={() => setOpenDelete(false)}
             >
-                <p className="mb-4 text-sm">
+                <p className={`mb-4 text-sm ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
                     Are you sure you want to delete this notification?
                 </p>
                 <div className="flex justify-end gap-2">

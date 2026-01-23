@@ -5,6 +5,7 @@ import {
   updateFAQ,
   deleteFAQ,
 } from "../../../api/faq.api";
+import { useTheme } from "../../../context/ThemeContext";
 
 import Button from "../../../components/common/Button";
 import Modal from "../../../components/modals/Modal";
@@ -17,6 +18,7 @@ import { Toaster } from "react-hot-toast";
 const FAQs = () => {
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { isDark } = useTheme();
 
   const [expanded, setExpanded] = useState(null);
   const [openAdd, setOpenAdd] = useState(false);
@@ -90,7 +92,7 @@ const FAQs = () => {
       <Toaster position="top-right" />
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">FAQs</h2>
+        <h2 className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>FAQs</h2>
         <Button onClick={() => setOpenAdd(true)}>+ Add FAQ</Button>
       </div>
 
@@ -99,7 +101,7 @@ const FAQs = () => {
         {faqs.map((faq) => (
           <div
             key={faq._id}
-            className="bg-slate-800 border border-slate-700 rounded-lg"
+            className={`rounded-lg border transition-all duration-200 ${isDark ? 'bg-slate-800 border-slate-700 hover:border-slate-600' : 'bg-white border-gray-200 shadow-sm hover:border-gray-300'}`}
           >
             {/* QUESTION BAR */}
             <div
@@ -108,7 +110,7 @@ const FAQs = () => {
                 setExpanded(expanded === faq._id ? null : faq._id)
               }
             >
-              <h4 className="font-medium">{faq.question}</h4>
+              <h4 className={`font-medium ${isDark ? 'text-white' : 'text-gray-900'}`}>{faq.question}</h4>
 
               <div className="flex gap-2">
                 <Button
@@ -142,7 +144,7 @@ const FAQs = () => {
 
             {/* ANSWER */}
             {expanded === faq._id && (
-              <div className="px-4 pb-4 text-slate-300 text-sm">
+              <div className={`px-4 pb-4 text-sm ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
                 {faq.answer}
               </div>
             )}
@@ -222,7 +224,7 @@ const FAQs = () => {
         title="Delete FAQ"
         onClose={() => setOpenDelete(false)}
       >
-        <p className="mb-4 text-sm text-slate-400">
+        <p className={`mb-4 text-sm ${isDark ? 'text-slate-400' : 'text-gray-600'}`}>
           Are you sure you want to delete this FAQ?
         </p>
         <div className="flex justify-end gap-2">

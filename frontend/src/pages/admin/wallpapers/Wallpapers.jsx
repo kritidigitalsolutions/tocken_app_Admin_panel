@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Trash2, Edit, Plus, Search } from "lucide-react";
 import toast from "react-hot-toast";
 import { wallpaperAPI } from "./wallpaperAPI";
+import { useTheme } from "../../../context/ThemeContext";
 
 const WallpaperManagement = () => {
   const [wallpapers, setWallpapers] = useState([]);
@@ -9,6 +10,7 @@ const WallpaperManagement = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const { isDark } = useTheme();
 
   const [formData, setFormData] = useState({
     title: "",
@@ -112,7 +114,7 @@ const WallpaperManagement = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-white">Wallpaper Management</h1>
+          <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Wallpaper Management</h1>
           <button
             onClick={() => {
               setShowForm(!showForm);
@@ -132,27 +134,27 @@ const WallpaperManagement = () => {
         {/* Search */}
         <div className="mb-6">
           <div className="relative">
-            <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+            <Search className={`absolute left-3 top-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} size={20} />
             <input
               type="text"
               placeholder="Search wallpapers..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400"
+              className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark ? 'bg-slate-800 border-slate-700 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'}`}
             />
           </div>
         </div>
 
         {/* Form */}
         {showForm && (
-          <div className="bg-slate-800 rounded-lg shadow-md p-6 mb-6 border border-slate-700">
-            <h2 className="text-xl font-bold mb-4 text-white">
+          <div className={`rounded-lg shadow-md p-6 mb-6 border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200'}`}>
+            <h2 className={`text-xl font-bold mb-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>
               {editingId ? "Edit Wallpaper" : "Add New Wallpaper"}
             </h2>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   Title *
                 </label>
                 <input
@@ -162,13 +164,13 @@ const WallpaperManagement = () => {
                     setFormData({ ...formData, title: e.target.value })
                   }
                   required
-                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400"
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'}`}
                   placeholder="Enter wallpaper title"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   Description
                 </label>
                 <textarea
@@ -176,14 +178,14 @@ const WallpaperManagement = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, description: e.target.value })
                   }
-                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-gray-400"
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-gray-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'}`}
                   rows="3"
                   placeholder="Enter wallpaper description"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className={`block text-sm font-medium mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                   Image *
                 </label>
                 <input
@@ -192,7 +194,7 @@ const WallpaperManagement = () => {
                   onChange={(e) =>
                     setFormData({ ...formData, image: e.target.files[0] })
                   }
-                  className="w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-lg text-gray-300"
+                  className={`w-full px-3 py-2 border rounded-lg ${isDark ? 'bg-slate-700 border-slate-600 text-gray-300' : 'bg-white border-gray-300 text-gray-700'}`}
                 />
               </div>
 
@@ -214,7 +216,7 @@ const WallpaperManagement = () => {
                       image: null
                     });
                   }}
-                  className="bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-600"
+                  className={`px-4 py-2 rounded-lg ${isDark ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-900'}`}
                 >
                   Cancel
                 </button>
@@ -225,9 +227,9 @@ const WallpaperManagement = () => {
 
         {/* Wallpapers Grid */}
         {loading ? (
-          <div className="text-center py-8 text-gray-300">Loading...</div>
+          <div className={`text-center py-8 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>Loading...</div>
         ) : wallpapers.length === 0 ? (
-          <div className="text-center py-8 text-gray-400">
+          <div className={`text-center py-8 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             No wallpapers found
           </div>
         ) : (
@@ -239,13 +241,13 @@ const WallpaperManagement = () => {
               .map((wallpaper) => (
                 <div
                   key={wallpaper._id}
-                  className="bg-slate-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition border border-slate-700"
+                  className={`rounded-lg shadow-md overflow-hidden hover:shadow-lg transition border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200'}`}
                 >
                   {/* Image */}
                   <img
                     src={wallpaper.image}
                     alt={wallpaper.title}
-                    className="w-full h-48 object-cover bg-slate-700"
+                    className={`w-full h-48 object-cover ${isDark ? 'bg-slate-700' : 'bg-gray-200'}`}
                     onError={(e) => {
                       e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%231e293b' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='18' fill='%23666666'%3EInvalid Image%3C/text%3E%3C/svg%3E";
                     }}
@@ -253,8 +255,8 @@ const WallpaperManagement = () => {
 
                   {/* Info */}
                   <div className="p-4">
-                    <h3 className="font-bold text-lg mb-1 text-white">{wallpaper.title}</h3>
-                    <p className="text-sm text-gray-400 mb-3">
+                    <h3 className={`font-bold text-lg mb-1 ${isDark ? 'text-white' : 'text-gray-900'}`}>{wallpaper.title}</h3>
+                    <p className={`text-sm mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
                       {wallpaper.description}
                     </p>
 

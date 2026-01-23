@@ -115,7 +115,7 @@ app.use("/api/banners", bannerRoutes);
 // Admin banners (full CRUD)
 app.use("/api/admin/banners", isAuth, isAdmin, adminBannerRoutes);
 
-// Authentication routes
+//user Authentication routes
 app.use("/api/auth", authRoutes);
 // User routes
 app.use("/api/user", userRoutes);

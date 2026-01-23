@@ -1,24 +1,27 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext";
 
 import Login from "./pages/Login";
 import AdminRoutes from "./routes/AdminRoutes";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
 
-        <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login />} />
 
-        {/* ADMIN */}
-        <Route path="/admin/*" element={<AdminRoutes />} />
+          {/* ADMIN */}
+          <Route path="/admin/*" element={<AdminRoutes />} />
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
 
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

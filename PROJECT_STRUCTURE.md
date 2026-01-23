@@ -26,7 +26,6 @@ root/
 │   ├── config/                     # Configuration files
 │   │   ├── cloudinary.js           # Cloudinary image service config
 │   │   ├── db.js                   # Database connection
-│   │   ├── firebase.js             # Firebase OTP service config
 │   │   ├── multer.js               # File upload middleware
 │   │   └── radies.js               # Redis cache config
 │   │
@@ -200,7 +199,7 @@ root/
 - **Models**: 13 database schemas
 - **Middleware**: 7 custom middlewares
 - **Routes**: 27 route files (12 main + 15 admin)
-- **Config**: 5 external service configs (DB, Cloudinary, Firebase, Redis, Multer)
+- **Config**: 4 external service configs (DB, Cloudinary, Redis, Multer)
 - **Utilities**: 6 helper functions
 
 ### Frontend
@@ -254,7 +253,6 @@ root/
 - **File Storage**: Cloudinary 2.8.0
 - **File Upload**: Multer 2.0.2 with Cloudinary storage
 - **Cache**: Redis
-- **OTP Service**: Firebase Admin 13.6.0
 - **Job Scheduler**: node-cron 4.2.1
 - **CORS**: cors 2.8.5
 - **Environment**: dotenv 17.2.3
@@ -292,7 +290,6 @@ root/
 - **Authentication**: JWT
 - **File Storage**: Cloudinary
 - **Cache**: Redis
-- **OTP Service**: Firebase
 - **Job Scheduler**: node-cron
 
 ### Frontend
@@ -306,7 +303,6 @@ root/
 ## 📝 Notes
 
 - All sensitive data is stored in `.env` file
-- Firebase credentials are environment-based for security
 - Admin routes require authentication and admin role
 - User routes require authentication
 - Public routes are accessible without authentication
@@ -359,7 +355,7 @@ backend/
 config/
 ├── cloudinary.js                       # Cloudinary cloud storage setup
 ├── db.js                               # MongoDB database connection
-└── firebase.js                         # Firebase configuration
+└── multer.js                           # Multer file upload setup
 ```
 
 ### Controllers (`controllers/`)
@@ -393,12 +389,6 @@ controllers/auth/
 ```
 controllers/user/
 └── plan.controller.js                  # User plan management
-```
-
-### Firebase Configuration (`firebase/`)
-```
-firebase/
-└── serviceAccountKey.json              # Firebase service account credentials
 ```
 
 ### Middleware (`middleware/`)
@@ -569,7 +559,7 @@ Frontend (React):
 ### Backend Status
 | Component | Status | Notes |
 |-----------|--------|-------|
-| Authentication | ✅ Configured | JWT + Firebase Admin |
+| Authentication | ✅ Configured | JWT |
 | Database | ✅ Configured | MongoDB via Mongoose |
 | Cloud Storage | ✅ Configured | Cloudinary |
 | User Management | ✅ Implemented | Basic CRUD + admin |
@@ -580,7 +570,7 @@ Frontend (React):
 | Banners | ✅ Implemented | User + Admin management |
 | Middleware | ✅ Implemented | Auth, Admin, Plan protections |
 | OTP System | ✅ Schema Ready | Model available |
-| Documentation | 🗑️ Cleaned | OTP guide removed |
+| Documentation | ✅ Cleaned | Firebase removed |
 
 ### Frontend Status
 | Component | Status | Notes |
@@ -646,7 +636,6 @@ demo-real-estate-site/
 ├── backend/
 │   ├── config/         (3 files)
 │   ├── controllers/    (8 files across 3 subdirs)
-│   ├── firebase/       (1 file)
 │   ├── middleware/     (3 files)
 │   ├── models/         (7 files)
 │   ├── routes/         (7 files across 3 subdirs)
@@ -718,13 +707,12 @@ demo-real-estate-site/
 - Mongoose models in `models/` directory
 
 ### Backend → External Services
-- Firebase: `config/firebase.js`
 - Cloudinary: `config/cloudinary.js`
 
 ---
 
 **Generated**: January 12, 2026  
-**Last Updated**: January 14, 2026  
+**Last Updated**: January 22, 2026  
 **Purpose**: Project structure documentation and status tracking  
 
 ---

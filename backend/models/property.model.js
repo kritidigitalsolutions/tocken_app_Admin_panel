@@ -18,7 +18,7 @@ const propertySchema = new mongoose.Schema(
 
     // Step 2: User selects Property Type (for RENT/SELL only)
     propertyType: {
-      type: String, 
+      type: String,
       enum: ["RESIDENTIAL", "COMMERCIAL"]
     },
 
@@ -121,47 +121,155 @@ const propertySchema = new mongoose.Schema(
       pgFor: String, // Male, Female, All
       bestSuitedFor: [String], // Working, Student, Business, Other
       totalFloors: Number,
-      roomSharingType: String, // Private, Twin, Triple, Quad
-      roomsAvailable: {
-        private: Number,
-        twin: Number,
-        triple: Number,
-        quad: Number
+      roomSharingType: [
+        {
+          RoomType: String,
+          rentAmount: Number,  //rant amount for private, twin, triple, quad
+          securityDeposit: String, //security for private, twin, triple, quad
+          amount: Number, //amount for private, twin, triple, quad
+          roomNumber: Number,
+          attachedBathroom: Boolean,
+          attachedBalcony: Boolean,
+        },
+      ],
+      allfurnishType: {
+        furnishType: String,
+        service: [
+          {
+            nameOfAminities: String,
+            numberOfamenities: Number,
+          }
+
+        ]
       },
-      furnishType: String,
       parking: {
         covered: Number,
         open: Number
       },
+
       managedBy: String,
       managerStaysAtPG: Boolean,
       availableDate: Date,
+      addMoreRentdetails: [
+        {
+          isPriceNgotiable: Boolean,
+          isElectricicyChanges: Boolean,
+          moreChanges: {
+            maintenance: Number,
+            booking: Number,
+            other: Number,
+          },
+        }
+      ],
+      includedServices: [String],
+
       amenities: [String],
       foodIncluded: Boolean,
-      mealOptions: [String] // Breakfast, Lunch, Dinner
+      mealsAvailable: [
+        {
+          mealsAvailableSelect: String,
+          mealType: String,
+          availableWeekday: [String],
+          availableWeekend: [String],
+          mealAmount: Number
+        }
+      ], // Breakfast, Lunch, Dinner
+      period: {
+        periodtype: String,
+        months: Number
+      },
+      city: String,
+      locality: String,
+      society: String,
+      mobileNumber: String,
+      isPhonePrivate: {
+        type: Boolean,
+        default: false
+      },
+      amenities: [String],
+      pgRules: [String],
+      entryTime: String,
+      area: [String],
+      image: String,
+      Description: String,
+
     },
 
     // ===== CO-LIVING DETAILS (Need Roommate / Need Room) =====
     coLivingDetails: {
-      lookingFor: String, // Need Roommate, Need Room/Flat
+      coLivingAd: String, // Need Roommate, Need Room/Flat
       profileImage: String,
       name: String,
       mobileNumber: String,
-      isMobilePrivate: Boolean,
+      isPhonePrivate: {
+        type: Boolean,
+        default: false
+      },
       dateOfBirth: Date,
       gender: String, // Male, Female, Other
       occupation: String,
-      languages: [String],
-      hobbies: [String],
+      occupationName: String,
+      languages: String,
+      // if select Need Room/Flat
+      availableFrom: Date,
+      bhk: String,
+      allfurnishType: {
+        furnishType: String,
+        service: [
+          {
+            nameOfAminities: String,
+            numberOfamenities: Number,
+          }
+
+        ]
+      },
+      addmoreFurnishing: {
+        service: [
+          {
+            nameOfAminities: String,
+            numberOfamenities: Number,
+          }
+
+        ]
+      },
+      roomDetails:[String],
+      totalFloores: Number,
+      yourFloor: Number,
+      amenities: [String],
+      rentAmount: Number,
+      addMoreRentdetails: [
+        {
+          isPriceNgotiable: Boolean,
+          isElectricicyChanges: Boolean,
+          moreChanges: {
+            maintenance: Number,
+            booking: Number,
+            other: Number,
+          },
+        }
+      ],
+      hobbies: String,
       lookingToShiftBy: Date,
       // Room preferences if looking for room
-      preferredLocation: String,
+      city: String,
+      locality: String,
+      society: String,
       budgetRange: {
         min: Number,
         max: Number
       },
-      roomType: String, // Private, Shared
-      preferredRoommates: String // Male, Female, Any
+      gender: String,
+      ageLimit:{
+        min: String,
+        max: String,
+      },
+      partnerOccupation:[String],
+      propertyImage: [String],
+      preferences:[String],
+      about: String,
+      instaLink: String,
+      facebookLink: String,
+      LinkedinLink: String
     },
 
     // ===== PRICING =====

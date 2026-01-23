@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { fetchPlans, createPlan, updatePlan, deletePlan } from "../../../api/plans";
 import toast from "react-hot-toast";
 import Loader from "../../../components/common/Loader";
+import { useTheme } from "../../../context/ThemeContext";
 
 const Plans = () => {
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const { isDark } = useTheme();
   const [formData, setFormData] = useState({
     planName: "",
     userType: "AGENT",
@@ -156,12 +158,12 @@ const Plans = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-gray-50'}`}>
       {/* Header */}
       <div className="mb-8 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-white">Plans Management</h1>
-          <p className="text-slate-400 mt-2">Create and manage subscription plans</p>
+          <h1 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>Plans Management</h1>
+          <p className={`mt-2 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>Create and manage subscription plans</p>
         </div>
         {!showForm && (
           <button
@@ -175,8 +177,8 @@ const Plans = () => {
 
       {/* Form */}
       {showForm && (
-        <div className="bg-slate-800 border border-slate-700 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-bold text-white mb-6">
+        <div className={`rounded-lg p-6 mb-8 border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200 shadow-sm'}`}>
+          <h2 className={`text-xl font-bold mb-6 ${isDark ? 'text-white' : 'text-gray-900'}`}>
             {editingId ? "Edit Plan" : "Create New Plan"}
           </h2>
 
@@ -184,26 +186,26 @@ const Plans = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Plan Name */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Plan Name *</label>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Plan Name *</label>
                 <input
                   type="text"
                   name="planName"
                   value={formData.planName}
                   onChange={handleInputChange}
                   placeholder="e.g., Pro, Pro Plus"
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                   required
                 />
               </div>
 
               {/* User Type */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">User Type *</label>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>User Type *</label>
                 <select
                   name="userType"
                   value={formData.userType}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white focus:outline-none focus:border-blue-500"
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                   required
                 >
                   {userTypes.map(type => (
@@ -214,53 +216,53 @@ const Plans = () => {
 
               {/* Price */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Price (₹) *</label>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Price (₹) *</label>
                 <input
                   type="number"
                   name="price"
                   value={formData.price}
                   onChange={handleInputChange}
                   placeholder="1499"
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                   required
                 />
               </div>
 
               {/* Original Price */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Original Price (₹)</label>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Original Price (₹)</label>
                 <input
                   type="number"
                   name="originalPrice"
                   value={formData.originalPrice}
                   onChange={handleInputChange}
                   placeholder="1999"
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                 />
               </div>
 
               {/* Validity Days */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Validity (Days) *</label>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Validity (Days) *</label>
                 <input
                   type="number"
                   name="validityDays"
                   value={formData.validityDays}
                   onChange={handleInputChange}
                   placeholder="60"
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                   required
                 />
               </div>
 
               {/* Tag */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Tag</label>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Tag</label>
                 <select
                   name="tag"
                   value={formData.tag}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white focus:outline-none focus:border-blue-500"
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 >
                   {tags.map(tag => (
                     <option key={tag} value={tag}>{tag || "None"}</option>
@@ -270,28 +272,28 @@ const Plans = () => {
 
               {/* Offer Ends In Days */}
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Offer Ends In (Days)</label>
+                <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Offer Ends In (Days)</label>
                 <input
                   type="number"
                   name="offerEndsInDays"
                   value={formData.offerEndsInDays}
                   onChange={handleInputChange}
                   placeholder="4"
-                  className="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                  className={`w-full px-4 py-2 border rounded focus:outline-none focus:border-blue-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                 />
               </div>
             </div>
 
             {/* Features */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Features</label>
+              <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-slate-300' : 'text-gray-700'}`}>Features</label>
               <div className="flex gap-2 mb-3">
                 <input
                   type="text"
                   value={featureInput}
                   onChange={(e) => setFeatureInput(e.target.value)}
                   placeholder="Add a feature"
-                  className="flex-1 px-4 py-2 bg-slate-700 border border-slate-600 rounded text-white placeholder-slate-400 focus:outline-none focus:border-blue-500"
+                  className={`flex-1 px-4 py-2 border rounded focus:outline-none focus:border-blue-500 ${isDark ? 'bg-slate-700 border-slate-600 text-white placeholder-slate-400' : 'bg-white border-gray-300 text-gray-900 placeholder-gray-400'}`}
                 />
                 <button
                   type="button"
@@ -305,13 +307,13 @@ const Plans = () => {
                 {formData.features.map((feature, index) => (
                   <div
                     key={index}
-                    className="bg-blue-900 text-blue-300 px-3 py-1 rounded-full flex items-center gap-2"
+                    className={`px-3 py-1 rounded-full flex items-center gap-2 ${isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-100 text-blue-700'}`}
                   >
                     {feature}
                     <button
                       type="button"
                       onClick={() => removeFeature(index)}
-                      className="hover:text-blue-100 transition"
+                      className="hover:opacity-70 transition"
                     >
                       ×
                     </button>
@@ -330,7 +332,7 @@ const Plans = () => {
                   onChange={handleInputChange}
                   className="w-4 h-4 cursor-pointer"
                 />
-                <span className="text-slate-300">Active</span>
+                <span className={isDark ? 'text-slate-300' : 'text-gray-700'}>Active</span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
@@ -340,7 +342,7 @@ const Plans = () => {
                   onChange={handleInputChange}
                   className="w-4 h-4 cursor-pointer"
                 />
-                <span className="text-slate-300">GST Included</span>
+                <span className={isDark ? 'text-slate-300' : 'text-gray-700'}>GST Included</span>
               </label>
             </div>
 
@@ -355,7 +357,7 @@ const Plans = () => {
               <button
                 type="button"
                 onClick={resetForm}
-                className="flex-1 bg-slate-700 hover:bg-slate-600 text-white px-6 py-2 rounded-lg font-medium transition"
+                className={`flex-1 px-6 py-2 rounded-lg font-medium transition ${isDark ? 'bg-slate-700 hover:bg-slate-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-900'}`}
               >
                 Cancel
               </button>
@@ -370,17 +372,17 @@ const Plans = () => {
           plans.map(plan => (
             <div
               key={plan._id}
-              className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden hover:border-slate-600 transition"
+              className={`rounded-lg overflow-hidden transition border ${isDark ? 'bg-slate-800 border-slate-700 hover:border-slate-600' : 'bg-white border-gray-200 shadow-sm hover:border-gray-300'}`}
             >
               {/* Card Header */}
-              <div className="p-6 border-b border-slate-700 bg-slate-800/50">
+              <div className={`p-6 border-b ${isDark ? 'border-slate-700 bg-slate-800/50' : 'border-gray-200 bg-gray-50'}`}>
                 <div className="flex justify-between items-start mb-3">
                   <div>
-                    <h3 className="text-xl font-bold text-white">{plan.planName}</h3>
-                    <p className="text-sm text-slate-400 mt-1">{plan.userType}</p>
+                    <h3 className={`text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{plan.planName}</h3>
+                    <p className={`text-sm mt-1 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{plan.userType}</p>
                   </div>
                   {plan.tag && (
-                    <span className="bg-blue-900 text-blue-300 text-xs font-semibold px-3 py-1 rounded-full">
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${isDark ? 'bg-blue-900 text-blue-300' : 'bg-blue-100 text-blue-700'}`}>
                       {plan.tag}
                     </span>
                   )}
@@ -389,21 +391,21 @@ const Plans = () => {
                 {/* Price */}
                 <div className="mb-3">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold text-white">₹{plan.price}</span>
+                    <span className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>₹{plan.price}</span>
                     {plan.originalPrice && (
                       <>
-                        <span className="text-sm text-slate-400 line-through">₹{plan.originalPrice}</span>
-                        <span className="text-xs bg-green-900 text-green-300 px-2 py-1 rounded">
+                        <span className={`text-sm line-through ${isDark ? 'text-slate-400' : 'text-gray-400'}`}>₹{plan.originalPrice}</span>
+                        <span className={`text-xs px-2 py-1 rounded ${isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'}`}>
                           Save ₹{plan.originalPrice - plan.price}
                         </span>
                       </>
                     )}
                   </div>
-                  {plan.gstIncluded && <p className="text-xs text-slate-400 mt-1">incl. GST</p>}
+                  {plan.gstIncluded && <p className={`text-xs mt-1 ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>incl. GST</p>}
                 </div>
 
                 {plan.offerEndsInDays && (
-                  <div className="text-xs bg-yellow-900 text-yellow-300 px-2 py-1 rounded inline-block mb-3">
+                  <div className={`text-xs px-2 py-1 rounded inline-block mb-3 ${isDark ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-700'}`}>
                     ⚡ Offer Ends in {plan.offerEndsInDays} days
                   </div>
                 )}
@@ -412,23 +414,23 @@ const Plans = () => {
               {/* Card Body */}
               <div className="p-6">
                 {/* Validity */}
-                <p className="text-sm text-slate-300 mb-4">
-                  <span className="text-slate-400">Valid for</span> <span className="font-semibold">{plan.validityDays} days</span>
+                <p className={`text-sm mb-4 ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
+                  <span className={isDark ? 'text-slate-400' : 'text-gray-500'}>Valid for</span> <span className="font-semibold">{plan.validityDays} days</span>
                 </p>
 
                 {/* Features */}
                 {plan.features && plan.features.length > 0 && (
                   <div className="mb-6">
-                    <p className="text-sm font-semibold text-white mb-3">Features:</p>
+                    <p className={`text-sm font-semibold mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>Features:</p>
                     <ul className="space-y-2">
                       {plan.features.slice(0, 3).map((feature, index) => (
-                        <li key={index} className="flex items-center gap-2 text-sm text-slate-300">
+                        <li key={index} className={`flex items-center gap-2 text-sm ${isDark ? 'text-slate-300' : 'text-gray-600'}`}>
                           <span className="text-green-400">✓</span>
                           {feature}
                         </li>
                       ))}
                       {plan.features.length > 3 && (
-                        <li className="text-sm text-slate-400 italic">
+                        <li className={`text-sm italic ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>
                           +{plan.features.length - 3} more features
                         </li>
                       )}
@@ -439,8 +441,8 @@ const Plans = () => {
                 {/* Status */}
                 <div className="mb-6">
                   <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${plan.isActive
-                      ? "bg-green-900 text-green-300"
-                      : "bg-red-900 text-red-300"
+                      ? (isDark ? "bg-green-900 text-green-300" : "bg-green-100 text-green-700")
+                      : (isDark ? "bg-red-900 text-red-300" : "bg-red-100 text-red-700")
                     }`}>
                     {plan.isActive ? "Active" : "Inactive"}
                   </span>
@@ -448,7 +450,7 @@ const Plans = () => {
               </div>
 
               {/* Card Footer */}
-              <div className="p-6 border-t border-slate-700 flex gap-3">
+              <div className={`p-6 border-t flex gap-3 ${isDark ? 'border-slate-700' : 'border-gray-200'}`}>
                 <button
                   onClick={() => handleEdit(plan)}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-medium transition"
@@ -466,8 +468,8 @@ const Plans = () => {
           ))
         ) : (
           <div className="col-span-full text-center py-12">
-            <p className="text-slate-400 text-lg">No plans found</p>
-            <p className="text-slate-500 text-sm mt-2">Create your first plan to get started</p>
+            <p className={`text-lg ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>No plans found</p>
+            <p className={`text-sm mt-2 ${isDark ? 'text-slate-500' : 'text-gray-400'}`}>Create your first plan to get started</p>
           </div>
         )}
       </div>

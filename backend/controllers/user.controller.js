@@ -103,7 +103,6 @@ exports.saveUserDetails = async (req, res) => {
 /**
  * COMPLETE USER PROFILE
  * POST /api/user/complete-profile
- * After Firebase auth, user fills profile details
  */
 exports.completeProfile = async (req, res) => {
   try {
