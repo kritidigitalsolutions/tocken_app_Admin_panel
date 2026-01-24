@@ -37,35 +37,64 @@ const propertySchema = new mongoose.Schema(
 
     // ===== RESIDENTIAL PROPERTY DETAILS =====
     residentialDetails: {
+      propertytype: String, //for others case
+      constructionStatus: String, //for others case
+      expectedPossession: String, // Plot case
+      constructionType: String,
       ageOfProperty: String,
       bhkType: String,
       bathrooms: Number,
       balconies: Number,
       additionalRooms: [String],
-      furnishType: String,
-      furnishings: {
-        fans: Number,
-        ac: Number,
-        beds: Number,
-        wardrobe: Number,
-        geyser: Number,
-        sofa: Number,
-        washingMachine: Number,
-        fridge: Number,
-        tv: Number,
-        diningTable: Number
+      allfurnishType: {
+        furnishType: String,
+        service: [
+          {
+            nameOfAminities: String,
+            numberOfamenities: Number,
+          }
+
+        ]
       },
+
       facing: String,
       flooring: String,
+      ownership: String,
+
       area: {
-        builtUp: Number,
-        carpet: Number,
-        superBuiltUp: Number
+        buitUpArea: {
+          count: Number,
+          unit: String,
+        },
+        carpetArea: {
+          count: Number,
+          unit: String,
+        },
+        plotArea: {
+          count: Number,
+          unit: String,
+          dimensions: {
+            length: Number,
+            width: Number,
+          },
+          road: {
+            count: Number,
+            unit: String,
+          }
+        },
+
       },
+      openSide: String,
+      isConstruction: String,
+      boundaryWall: Boolean,
+      cornerPlot: Boolean,
+      allowBrokers: Boolean,
+
       parking: {
-        covered: Number,
-        open: Number
+        name: String,
+        count: Number,
       },
+
       totalFloors: Number,
       yourFloor: Number,
       preferredTenant: [String],
@@ -74,45 +103,84 @@ const propertySchema = new mongoose.Schema(
 
     // ===== COMMERCIAL PROPERTY DETAILS =====
     commercialDetails: {
-      constructionStatus: String, // Ready to Move, Under Construction
+      propertytype: String, //for others case
+      constructionStatus: String,  //for others case
       expectedPossession: String,
-      washrooms: Number,
-      suitableFor: [String], // Jewellery, Gym, Medical/Clinic, Footwear Shop, etc.
+      month: String,
+      ageOfProperty: String,
       locationHub: String,
+      washrooms: Number,
+      suitableFor: [String],
       zoneType: String,
       propertyCondition: String, // Ready to Use, Bare Shell
+      available: Date,
+      constructionStatusOfWall: String,
       facing: String,
       flooring: String,
       ownership: String,
       area: {
-        builtUp: Number,
-        carpet: Number
+        buitUpArea: {
+          count: Number,
+          unit: String,
+        },
+        carpetArea: {
+          count: Number,
+          unit: String,
+        },
+        plotArea: {
+          count: Number,
+          unit: String,
+          dimensions: {
+            length: Number,
+            width: Number,
+          },
+          road: {
+            count: Number,
+            unit: String,
+          }
+        },
+
       },
+      openSide: String,
+      isConstruction: String,
+      constructionType: String,
+      facing: String,
+      boundaryWall: Boolean,
+      cornerPlot: Boolean,
+      allowBrokers: Boolean,
       totalFloors: Number,
       yourFloor: Number,
       fireSafety: [String], // Fire Extinguisher, Fire Sensors, Sprinkles, Firehose
       occupancyCertificate: Boolean,
       nocCertified: Boolean,
-      allowBrokers: Boolean
-    },
+      allowBrokers: Boolean,
 
-    // ===== PLOT/LAND DETAILS =====
-    plotDetails: {
-      expectedPossession: String,
-      zoneType: String,
-      ownership: String,
-      plotArea: Number,
-      dimensions: {
-        length: Number,
-        width: Number
+      // for office space
+      cabin: Number,
+      meetingRoom: Number,
+      seats: Number,
+
+      confrenceRoom: Boolean,
+      washrooms: Boolean,
+      furnished: Boolean,
+      receptionArea: Boolean,
+      pantry: Boolean,
+      ac: Boolean,
+      ups: Boolean,
+      oxygen: Boolean,
+      passangerLift: String,
+      serviceLift: String,
+      ParkingType: {
+        type: String,
+        privateParkingBasement: Boolean,
+        privateParkingOutside: Boolean,
+        publicParking: Boolean,
       },
-      facingRoadWidth: Number,
-      openSides: Number, // 1, 2, 3, 3+
-      anyConstruction: Boolean,
-      facing: String,
-      boundaryWall: Boolean,
-      cornerPlot: Boolean,
-      allowBrokers: Boolean
+      numberOfParking: Number,
+
+
+
+      
     },
 
     // ===== PG DETAILS =====
@@ -123,11 +191,11 @@ const propertySchema = new mongoose.Schema(
       totalFloors: Number,
       roomSharingType: [
         {
-          RoomType: String,
+          RoomType: [String],
           rentAmount: Number,  //rant amount for private, twin, triple, quad
           securityDeposit: String, //security for private, twin, triple, quad
           amount: Number, //amount for private, twin, triple, quad
-          roomNumber: Number,
+          NumberOfRooms: Number,
           attachedBathroom: Boolean,
           attachedBalcony: Boolean,
         },
@@ -142,6 +210,7 @@ const propertySchema = new mongoose.Schema(
 
         ]
       },
+
       parking: {
         covered: Number,
         open: Number
@@ -152,52 +221,32 @@ const propertySchema = new mongoose.Schema(
       availableDate: Date,
       addMoreRentdetails: [
         {
-          isPriceNgotiable: Boolean,
-          isElectricicyChanges: Boolean,
           moreChanges: {
             maintenance: Number,
             booking: Number,
             other: Number,
           },
+          isPriceNgotiable: Boolean,
+          isElectricicyChanges: Boolean,
         }
       ],
+
       includedServices: [String],
 
-      amenities: [String],
       foodIncluded: Boolean,
       mealsAvailable: [
         {
-          mealsAvailableSelect: String,
+          selectMeals: String,
           mealType: String,
           availableWeekday: [String],
           availableWeekend: [String],
           mealAmount: Number
         }
       ], // Breakfast, Lunch, Dinner
-      period: {
-        periodtype: String,
-        months: Number
-      },
-      city: String,
-      locality: String,
-      society: String,
-      mobileNumber: String,
-      isPhonePrivate: {
-        type: Boolean,
-        default: false
-      },
-      amenities: [String],
-      pgRules: [String],
-      entryTime: String,
-      area: [String],
-      image: String,
-      Description: String,
-
     },
 
     // ===== CO-LIVING DETAILS (Need Roommate / Need Room) =====
     coLivingDetails: {
-      coLivingAd: String, // Need Roommate, Need Room/Flat
       profileImage: String,
       name: String,
       mobileNumber: String,
@@ -210,8 +259,10 @@ const propertySchema = new mongoose.Schema(
       occupation: String,
       occupationName: String,
       languages: String,
+      hobbies: String,
       // if select Need Room/Flat
-      availableFrom: Date,
+      availableFrom: Date, //----
+
       bhk: String,
       allfurnishType: {
         furnishType: String,
@@ -232,7 +283,7 @@ const propertySchema = new mongoose.Schema(
 
         ]
       },
-      roomDetails:[String],
+      roomDetails: [String],
       totalFloores: Number,
       yourFloor: Number,
       amenities: [String],
@@ -248,41 +299,60 @@ const propertySchema = new mongoose.Schema(
           },
         }
       ],
-      hobbies: String,
       lookingToShiftBy: Date,
-      // Room preferences if looking for room
-      city: String,
-      locality: String,
-      society: String,
       budgetRange: {
         min: Number,
         max: Number
       },
-      gender: String,
-      ageLimit:{
+      partnerGender: String,
+      ageLimit: {
         min: String,
         max: String,
       },
-      partnerOccupation:[String],
-      propertyImage: [String],
-      preferences:[String],
-      about: String,
-      instaLink: String,
-      facebookLink: String,
-      LinkedinLink: String
+      partnerOccupation: [String],
+
     },
 
     // ===== PRICING =====
     pricing: {
+      rentType: String,
+      leaseYear: Number,
       rentAmount: Number,
+      // Pricing
+      pricePerSquare: Number,
+      ExpectedPrice: Number,
+      deal: Boolean,
+      discounttype: [
+        {
+          type: String,
+          discount: Number
+        }
+      ],
+      valid: Date,
+      available: Boolean,
+      addMorePricedetails: [
+        {
+          morePricing: {
+            booking: Number,
+            anualDuePay: Number,
+            other: Number,
+          },
+          isPriceNgotiable: Boolean,
+          isUpsAndDgChanges: Boolean,
+          isElectricity: Boolean,
+          isTaxAndGovChanges: Boolean,
+        }
+      ],
+      securityDepositType: String,
+      securityDepositAmount: Number,
+      noticePeriod: Number,
+      lockInPeriodType: String,
+      lockInPeriodAmount: Number,
+
       salePrice: Number,
-      isNegotiable: Boolean,
-      depositType: String,
       depositAmount: Number,
       maintenanceAmount: Number,
       maintenanceType: String, // Monthly, Quarterly, Yearly
-      noticePeriod: Number,
-      lockInPeriod: String
     },
 
     // ===== LOCATION =====
@@ -303,20 +373,29 @@ const propertySchema = new mongoose.Schema(
       phoneNumber: String,
       isPhonePrivate: Boolean,
       alternatePhone: String,
-      email: String
+      email: String,
+      entryTime: String,
+      about: String,
+      instaLink: String,
+      facebookLink: String,
+      LinkedinLink: String,
+      amenities: [String],
+      preferences: [String],
+      pgRules: [String],
+      area: [String],
     },
 
     // ===== AMENITIES & PREFERENCES =====
-    amenities: [String],
-    preferences: [String],
-
     // ===== PHOTOS =====
-    photos: [
-      {
-        url: String,
-        publicId: String
-      }
-    ],
+    // photos: [
+    //   {
+    //     publicId: String
+    //   }
+    // ],
+    
+    image: String,
+    Description: String,
+
 
     // ===== ADMIN METRICS =====
     listingScore: {

@@ -1,14 +1,11 @@
 const User = require("../models/user.model");
 const OTP = require("../models/OTP.model");
 const jwt = require("jsonwebtoken");
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const twilioPhone = process.env.TWILIO_PHONE;
-const client = require('twilio')(accountSid, authToken);
+const axios = require("axios");
 
 /**
  * SEND OTP
- * Generates and sends OTP via Twilio SMS
+ * Generates and sends OTP via RapidSMS
  */
 exports.sendOTP = async (req, res) => {
   try {
@@ -16,57 +13,95 @@ exports.sendOTP = async (req, res) => {
 
     // Validate phone number
     if (!phone || phone.trim() === "") {
-      return res.status(400).json({ message: "Phone number required" });
+      return res.status(400).json({ 
+        success: false,
+        message: "Phone number required" 
+      });
     }
 
-    // Format phone number (add country code if not present)
-    let formattedPhone = phone.startsWith('+') ? phone : '+91' + phone;
-
-    // Check if user already exists
-    // const existingUser = await User.findOne({ phone: formattedPhone });
-
-    // if (existingUser) {
-    //   return res.status(400).json({ message: "User with this phone number already exists! Please login." });
-    // }
+    // Format phone number: remove all non-digits, then add country code
+    let cleanPhone = phone.replace(/[^0-9]/g, '');
+    if (!cleanPhone.startsWith('91')) {
+      cleanPhone = '91' + cleanPhone;
+    }
+    const formattedPhoneWithPlus = '+' + cleanPhone;
 
     // Generate 6-digit OTP
     const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
 
+    // Delete any existing OTP for this phone
+    await OTP.deleteMany({ phone: formattedPhoneWithPlus });
+
     // Save OTP to database with expiry (10 minutes)
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
     await OTP.create({
-      phone: formattedPhone,
+      phone: formattedPhoneWithPlus,
       otp: generatedOTP,
       expiresAt: otpExpiry
     });
 
-    // Send OTP via Twilio
+    // Send OTP via RapidSMS
     try {
-      await client.messages.create({
-        body: `Your OTP verification code is: ${generatedOTP}. Valid for 10 minutes.`,
-        from: twilioPhone,
-        to: formattedPhone
-      });
-    } catch (twilioError) {
-      console.error("Twilio error:", twilioError.message);
-      console.error("Full error:", twilioError);
-      // For development, return OTP in response (REMOVE IN PRODUCTION)
-      console.log("DEBUG - OTP:", generatedOTP);
+      // Get credentials from .env
+      const RAPIDSMS_API_KEY = process.env.RAPIDSMS_API_KEY;
+      const RAPIDSMS_SENDER_ID = process.env.RAPIDSMS_SENDER_ID;
+
+      // APPROVED Template #4 (exact match required):
+      // "Dear Customer, Your login OTP is {#var#}. Use this OTP to access your account. Please do not share it with anyone. TOKEN"
+      const templateMessage = `Dear Customer, Your login OTP is ${generatedOTP}. Use this OTP to access your account. Please do not share it with anyone. TOKEN`;
+      
+      // RapidSMS API URL
+      const url = new URL('https://1.rapidsms.co.in/api/push');
+      url.searchParams.append('apikey', RAPIDSMS_API_KEY);
+      url.searchParams.append('sender', RAPIDSMS_SENDER_ID);
+      url.searchParams.append('mobileno', cleanPhone);
+      url.searchParams.append('text', templateMessage);
+
+      console.log("🚀 Sending OTP to:", cleanPhone);
+      console.log("📦 Template Message:", templateMessage);
+
+      const response = await axios.get(url.toString(), { timeout: 10000 });
+
+      console.log("✅ RapidSMS Response:", response.data);
+
+      // Check for error in response
+      if (response.data && response.data.status === 'error') {
+        throw new Error(response.data.description || "SMS sending failed");
+      }
+
       return res.status(200).json({
-        message: "OTP generated successfully but SMS sending failed",
-        error: twilioError.message,
-        debug: generatedOTP
+        success: true,
+        message: "OTP sent successfully",
+        phone: formattedPhoneWithPlus
+      });
+
+    } catch (smsError) {
+      console.error("❌ RapidSMS Error:", smsError.message);
+      console.error("Full Error:", smsError.response?.data);
+
+      // In development, return OTP for testing
+      if (process.env.NODE_ENV === 'development') {
+        return res.status(200).json({
+          success: true,
+          message: "OTP generated (SMS failed - dev mode)",
+          phone: formattedPhoneWithPlus,
+          debug: { otp: generatedOTP }
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: "Failed to send OTP",
+        error: smsError.message
       });
     }
 
-    return res.status(200).json({
-      message: "OTP sent successfully to " + formattedPhone,
-      phone: formattedPhone
-    });
-
   } catch (error) {
-    console.error("Send OTP error:", error);
-    res.status(500).json({ message: error.message });
+    console.error("❌ Send OTP Error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
   }
 };
 
@@ -78,12 +113,20 @@ exports.verifyOTP = async (req, res) => {
   try {
     const { phone, otp } = req.body;
 
+    // Validate inputs
     if (!phone || !otp) {
-      return res.status(400).json({ message: "Phone number and OTP required" });
+      return res.status(400).json({ 
+        success: false,
+        message: "Phone number and OTP required" 
+      });
     }
 
     // Format phone number
-    let formattedPhone = phone.startsWith('+') ? phone : '+91' + phone;
+    let cleanPhone = phone.replace(/[^0-9]/g, '');
+    if (!cleanPhone.startsWith('91')) {
+      cleanPhone = '91' + cleanPhone;
+    }
+    const formattedPhone = '+' + cleanPhone;
 
     // Find valid OTP
     const otpRecord = await OTP.findOne({
@@ -93,7 +136,10 @@ exports.verifyOTP = async (req, res) => {
     });
 
     if (!otpRecord) {
-      return res.status(400).json({ message: "Invalid or expired OTP" });
+      return res.status(400).json({ 
+        success: false,
+        message: "Invalid or expired OTP" 
+      });
     }
 
     // Delete used OTP
@@ -101,9 +147,11 @@ exports.verifyOTP = async (req, res) => {
 
     // Check if user exists
     let user = await User.findOne({ phone: formattedPhone });
+    let isNewUser = false;
 
     if (!user) {
       // Create new user
+      isNewUser = true;
       user = await User.create({
         phone: formattedPhone,
         name: "User " + formattedPhone.slice(-4),
@@ -111,29 +159,92 @@ exports.verifyOTP = async (req, res) => {
       });
     }
 
-    // Generate JWT token
+    // Generate JWT token from .env
     const token = jwt.sign(
-      { id: user._id, phone: user.phone, role: "USER" },
-      process.env.JWT_SECRET || "your_secret_key",
+      { 
+        id: user._id, 
+        phone: user.phone, 
+        role: "USER" 
+      },
+      process.env.JWT_SECRET,
       { expiresIn: "7d" }
     );
 
     return res.status(200).json({
       success: true,
-      message: user.isNew ? "User created successfully" : "Login successful",
+      message: isNewUser ? "Account created successfully" : "Login successful",
       token,
       user: {
         _id: user._id,
         phone: user.phone,
         name: user.name,
-        userType: user.userType
+        userType: user.userType,
+        email: user.email || null,
+        profileImage: user.profileImage || null
       }
     });
 
   } catch (error) {
-    console.error("Verify OTP error:", error);
-    res.status(500).json({ message: error.message });
+    console.error("❌ Verify OTP Error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
   }
 };
 
+/**
+ * RESEND OTP
+ * Resends a new OTP to the phone number
+ */
+exports.resendOTP = async (req, res) => {
+  try {
+    const { phone } = req.body;
 
+    if (!phone) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Phone number required" 
+      });
+    }
+
+    // Call sendOTP function
+    return exports.sendOTP(req, res);
+
+  } catch (error) {
+    console.error("❌ Resend OTP Error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
+  }
+};
+
+/**
+ * GET USER PROFILE
+ * Returns logged in user's profile
+ */
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-__v");
+
+    if (!user) {
+      return res.status(404).json({ 
+        success: false,
+        message: "User not found" 
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user
+    });
+
+  } catch (error) {
+    console.error("❌ Get Profile Error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: error.message 
+    });
+  }
+};

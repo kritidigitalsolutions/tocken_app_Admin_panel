@@ -7,8 +7,8 @@ exports.createDraft = async (req, res) => {
   const property = await Property.create({
     userId: req.user?.id || req.body.userId,
     listingType: req.body.listingType,
-    propertyCategory: req.body.propertyCategory,
-    propertyType: req.body.propertyType
+    propertyType: req.body.propertyType,
+    propertyCategory: req.body.propertyCategory
   });
 
   res.status(201).json(property);
