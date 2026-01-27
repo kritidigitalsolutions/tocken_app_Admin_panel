@@ -147,19 +147,18 @@ exports.verifyOTP = async (req, res) => {
 
     // Check if user exists
     let user = await User.findOne({ phone: formattedPhone });
-    let isNewUser = false;
 
     if (!user) {
-      // Create new user
-      isNewUser = true;
-      user = await User.create({
-        phone: formattedPhone,
-        name: "User " + formattedPhone.slice(-4),
-        userType: "INDIVIDUAL"
+      // New user - tell frontend to show profile completion form
+      return res.status(200).json({
+        success: true,
+        isNewUser: true,
+        message: "New user. Please complete your profile.",
+        phone: formattedPhone
       });
     }
 
-    // Generate JWT token from .env
+    // Existing user - generate token
     const token = jwt.sign(
       { 
         id: user._id, 
@@ -172,16 +171,10 @@ exports.verifyOTP = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: isNewUser ? "Account created successfully" : "Login successful",
+      isNewUser: false,
+      message: "Login successful",
       token,
-      user: {
-        _id: user._id,
-        phone: user.phone,
-        name: user.name,
-        userType: user.userType,
-        email: user.email || null,
-        profileImage: user.profileImage || null
-      }
+      user: user
     });
 
   } catch (error) {

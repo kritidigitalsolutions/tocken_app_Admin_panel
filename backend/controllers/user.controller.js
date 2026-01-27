@@ -1,4 +1,6 @@
 const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
+
 
 // ✅ GET user profile
 exports.getProfile = async (req, res) => {
@@ -26,18 +28,19 @@ exports.getProfile = async (req, res) => {
 
 
 /**
- * COMPLETE USER PROFILE
- * POST /api/user/complete-profile
+ * COMPLETE USER PROFILE (for new users after OTP verification)
+ * POST /api/user/profile-info
+ * Body: { phone, userType, firstName, lastName, email, profileImage }
  */
 exports.completeProfile = async (req, res) => {
   try {
-    const { userType, firstName, lastName, email, profileImage } = req.body;
+    const { phone, userType, firstName, lastName, email, profileImage } = req.body;
 
     // Validation
-    if (!userType || !firstName || !lastName) {
+    if (!phone || !userType || !firstName || !lastName) {
       return res.status(400).json({
         success: false,
-        message: "userType, firstName, and lastName are required"
+        message: "phone, userType, firstName, and lastName are required"
       });
     }
 
@@ -50,38 +53,67 @@ exports.completeProfile = async (req, res) => {
       });
     }
 
-    // Update user profile
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      {
+    // Format phone number for consistency
+    let cleanPhone = phone.replace(/[^0-9]/g, '');
+    if (!cleanPhone.startsWith('91')) {
+      cleanPhone = '91' + cleanPhone;
+    }
+    const formattedPhone = '+' + cleanPhone;
+
+    // Check if user already exists
+    let user = await User.findOne({ phone: formattedPhone });
+
+    if (!user) {
+      // Create new user
+      user = await User.create({
+        phone: formattedPhone,
         userType,
         firstName,
         lastName,
         email: email || "",
         profileImage: profileImage || "",
-        name: `${firstName} ${lastName}` // Also update the name field
-      },
-      { new: true, runValidators: true }
-    ).select("-__v");
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found"
+        name: `${firstName} ${lastName}`
       });
+    } else {
+      // Update existing user
+      user = await User.findByIdAndUpdate(
+        user._id,
+        {
+          userType,
+          firstName,
+          lastName,
+          email: email || "",
+          profileImage: profileImage || "",
+          name: `${firstName} ${lastName}`
+        },
+        { new: true, runValidators: true }
+      );
     }
 
-    res.status(200).json({
+    // Generate JWT token
+    const token = jwt.sign(
+      { 
+        id: user._id, 
+        phone: user.phone, 
+        role: "USER" 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(201).json({
       success: true,
       message: "Profile completed successfully",
-      user
+      token,
+      user: user
     });
 
   } catch (error) {
     console.error("Complete profile error:", error);
     res.status(500).json({
       success: false,
-      message: "Server error"
+      message: "Server error",
+      error: error.message
     });
   }
 };

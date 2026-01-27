@@ -16,6 +16,15 @@ const furnishingSchema = {
   ]
 };
 
+const parkingSchema = {
+  parkingDetails:[
+    {
+    label: String,
+    value: Number 
+  }
+  ]
+}
+
 const areaSchema = {
   builtUp: {
     value: Number,
@@ -81,12 +90,7 @@ const propertySchema = new mongoose.Schema(
 
       area: areaSchema,
 
-      parking: [
-        {
-          type: String,
-          value: Number
-        }
-      ],
+      parking: parkingSchema,
 
       totalFloors: Number,
       yourFloor: Number,
@@ -218,7 +222,7 @@ const propertySchema = new mongoose.Schema(
     /* ===== PRICING ===== */
     pricing: {
       rent: {
-        type: String,
+        label: String,
         amount: Number,
         isElectricity: Boolean,
         isNegotiable: Boolean
@@ -227,20 +231,20 @@ const propertySchema = new mongoose.Schema(
       
       amenities: [
         {
-          type: String,
+          label: String,
           amount: Number
         }
       ],
       
       securityDeposit: {
-        type: String,
+        label: String,
         amount: Number
       },
 
       noticePeriod: Number,
       
       lockInPeriod: {
-        type: String,
+        label: String,
         month: Number
       },
       

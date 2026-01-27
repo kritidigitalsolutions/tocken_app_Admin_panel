@@ -17,7 +17,7 @@ const {
 router.get("/profile", isAuth, getProfile);
 
 // fill user information first tiem
-router.post("/profile-info", isAuth, completeProfile);  // New user profile completion
+router.post("/profile-info", completeProfile);  // New user profile completion
 
 router.patch("/profile", isAuth, updateProfile);
 
