@@ -9,13 +9,21 @@ const {
     getPhonePrivacy,
     requestAccountDeletion,
     cancelDeletionRequest,
-    getDeletionStatus
+    getDeletionStatus,
+    // addGstNumber
 } = require("../controllers/user.controller");
 
 // ✅ User Profile - REST APIs
 router.get("/profile", isAuth, getProfile);
+
+// fill user information first tiem
+router.post("/profile-info", isAuth, completeProfile);  // New user profile completion
+
 router.patch("/profile", isAuth, updateProfile);
-router.post("/complete-profile", isAuth, completeProfile);  // New user profile completion
+
+
+// add GST Number 
+// router.post("/gst", isAuth, addGstNumber);
 
 // ✅ Phone Privacy APIs
 router.get("/phone-privacy", isAuth, getPhonePrivacy);

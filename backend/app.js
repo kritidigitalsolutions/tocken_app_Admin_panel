@@ -8,7 +8,7 @@ const userRoutes = require("./routes/user.routes.js");
 const legalRoutes = require("./routes/legal.routes");
 const faqRoutes = require("./routes/faq.routes");
 const faqAdminRoutes = require("./routes/admin/faq.routes");
-
+ 
 // Admin auth route
 const adminAuthRoutes = require("./routes/admin/auth.routes");
 

@@ -179,14 +179,81 @@ exports.removePremium = async (req, res) => {
   });
 };
 
-// 🔹 Admin: approve / reject / block
+// 🔹 Admin: approve / reject / block / request changes
 exports.updateStatus = async (req, res) => {
-  const property = await Property.findByIdAndUpdate(
-    req.params.id,
-    { status: req.body.status },
-    { new: true }
-  );
+  try {
+    const { status, reason } = req.body;
+    const propertyId = req.params.id;
 
-  res.json(property);
+    // Validate status
+    const validStatuses = ["DRAFT", "ACTIVE", "REJECTED", "BLOCKED"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status. Must be: DRAFT, ACTIVE, REJECTED, or BLOCKED"
+      });
+    }
+
+    const property = await Property.findById(propertyId);
+    if (!property) {
+      return res.status(404).json({
+        success: false,
+        message: "Property not found"
+      });
+    }
+
+    const oldStatus = property.status;
+    property.status = status;
+
+    // Log audit trail
+    let action = "";
+    let meta = { reason };
+
+    if (status === "ACTIVE") {
+      action = "PROPERTY_APPROVED";
+      meta.approvedBy = req.admin?.id;
+      meta.approvedAt = new Date();
+    } else if (status === "REJECTED") {
+      action = "PROPERTY_REJECTED";
+      meta.rejectedBy = req.admin?.id;
+      meta.rejectedAt = new Date();
+    } else if (status === "BLOCKED") {
+      action = "PROPERTY_BLOCKED";
+      meta.blockedBy = req.admin?.id;
+      meta.blockedAt = new Date();
+    } else if (status === "DRAFT") {
+      action = "PROPERTY_SENT_TO_DRAFT";
+      meta.draftBy = req.admin?.id;
+    }
+
+    await property.save();
+
+    // Log the action
+    await logAudit({
+      adminId: req.admin?.id,
+      action,
+      entityType: "PROPERTY",
+      entityId: property._id,
+      meta: { ...meta, oldStatus, newStatus: status }
+    });
+
+    res.json({
+      success: true,
+      message: `Property status updated to ${status}`,
+      data: {
+        propertyId: property._id,
+        oldStatus,
+        newStatus: status,
+        reason
+      }
+    });
+  } catch (error) {
+    console.error("ERROR UPDATING PROPERTY STATUS:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update property status",
+      error: error.message
+    });
+  }
 };
 

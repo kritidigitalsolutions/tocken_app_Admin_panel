@@ -1,33 +1,62 @@
 const mongoose = require("mongoose");
 
+/* ===== COMMON SUB-SCHEMAS ===== */
+
+const furnishingSchema = {
+  type: {
+    type: String,
+    enum: ["none", "semiFurnished", "fullyFurnished"],
+    default: "none"
+  },
+  amenities: [
+    {
+      name: String,        // Fan, AC, Bed
+      quantity: Number
+    }
+  ]
+};
+
+const areaSchema = {
+  builtUp: {
+    value: Number,
+    unit: { type: String, enum: ["sqft", "sqm"] }
+  },
+  carpet: {
+    value: Number,
+    unit: { type: String, enum: ["sqft", "sqm"] }
+  },
+  plot: {
+    value: Number,
+    unit: { type: String, enum: ["sqft", "sqm"] },
+    length: Number,
+    width: Number,
+    roadWidth: Number
+  }
+};
+
+/* ===== MAIN SCHEMA ===== */
+
 const propertySchema = new mongoose.Schema(
   {
-    // ===== BASIC INFO =====
+    /* ===== BASIC ===== */
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true
     },
 
-    // Step 1: User selects Listing Type
     listingType: {
       type: String,
-      enum: ["RENT", "SELL", "Co-Living", "PG"],
+      enum: ["RENT", "SELL", "PG", "CO_LIVING"],
       required: true
     },
 
-    // Step 2: User selects Property Type (for RENT/SELL only)
     propertyType: {
       type: String,
       enum: ["RESIDENTIAL", "COMMERCIAL"]
     },
 
-    // Step 3: User selects Property Category based on propertyType
-    // RESIDENTIAL: Apartment, Builder Floor, Independent House, Villa, 1RK/Studio, Others
-    // COMMERCIAL: Retail Shop, Showroom, Warehouse, Office, Plot/Land
-    propertyCategory: {
-      type: String
-    },
+    propertyCategory: String,
 
     status: {
       type: String,
@@ -35,270 +64,143 @@ const propertySchema = new mongoose.Schema(
       default: "DRAFT"
     },
 
-    // ===== RESIDENTIAL PROPERTY DETAILS =====
+    /* ===== RESIDENTIAL ===== */
     residentialDetails: {
-      propertytype: String, //for others case
-      constructionStatus: String, //for others case
-      expectedPossession: String, // Plot case
-      constructionType: String,
       ageOfProperty: String,
       bhkType: String,
       bathrooms: Number,
       balconies: Number,
       additionalRooms: [String],
-      allfurnishType: {
-        furnishType: String,
-        service: [
-          {
-            nameOfAminities: String,
-            numberOfamenities: Number,
-          }
 
-        ]
-      },
+      furnishing: furnishingSchema,
 
       facing: String,
       flooring: String,
       ownership: String,
+      constructionStatus: String,
 
-      area: {
-        buitUpArea: {
-          count: Number,
-          unit: String,
-        },
-        carpetArea: {
-          count: Number,
-          unit: String,
-        },
-        plotArea: {
-          count: Number,
-          unit: String,
-          dimensions: {
-            length: Number,
-            width: Number,
-          },
-          road: {
-            count: Number,
-            unit: String,
-          }
-        },
+      area: areaSchema,
 
-      },
-      openSide: String,
-      isConstruction: String,
-      boundaryWall: Boolean,
-      cornerPlot: Boolean,
-      allowBrokers: Boolean,
-
-      parking: {
-        name: String,
-        count: Number,
-      },
+      parking: [
+        {
+          type: String,
+          value: Number
+        }
+      ],
 
       totalFloors: Number,
       yourFloor: Number,
-      preferredTenant: [String],
+
+      preferredTenants: [String],
       availableFrom: Date
     },
 
-    // ===== COMMERCIAL PROPERTY DETAILS =====
+    /* ===== COMMERCIAL ===== */
     commercialDetails: {
-      propertytype: String, //for others case
-      constructionStatus: String,  //for others case
-      expectedPossession: String,
-      month: String,
-      ageOfProperty: String,
-      locationHub: String,
-      washrooms: Number,
+      propertyCondition: {
+        type: String,
+        enum: ["readyToUse", "bareShell"]
+      },
+
       suitableFor: [String],
+      washrooms: Number,
       zoneType: String,
-      propertyCondition: String, // Ready to Use, Bare Shell
-      available: Date,
-      constructionStatusOfWall: String,
+      ageOfProperty: String,
+      constructionStatus: String,
+
+      furnishing: furnishingSchema,
+      area: areaSchema,
+
       facing: String,
       flooring: String,
       ownership: String,
-      area: {
-        buitUpArea: {
-          count: Number,
-          unit: String,
-        },
-        carpetArea: {
-          count: Number,
-          unit: String,
-        },
-        plotArea: {
-          count: Number,
-          unit: String,
-          dimensions: {
-            length: Number,
-            width: Number,
-          },
-          road: {
-            count: Number,
-            unit: String,
-          }
-        },
 
-      },
-      openSide: String,
-      isConstruction: String,
-      constructionType: String,
-      facing: String,
-      boundaryWall: Boolean,
-      cornerPlot: Boolean,
-      allowBrokers: Boolean,
-      totalFloors: Number,
-      yourFloor: Number,
-      fireSafety: [String], // Fire Extinguisher, Fire Sensors, Sprinkles, Firehose
+      fireSafety: [String],
       occupancyCertificate: Boolean,
       nocCertified: Boolean,
-      allowBrokers: Boolean,
 
-      // for office space
-      cabin: Number,
-      meetingRoom: Number,
-      seats: Number,
-
-      confrenceRoom: Boolean,
-      washrooms: Boolean,
-      furnished: Boolean,
-      receptionArea: Boolean,
-      pantry: Boolean,
-      ac: Boolean,
-      ups: Boolean,
-      oxygen: Boolean,
-      passangerLift: String,
-      serviceLift: String,
-      ParkingType: {
-        type: String,
-        privateParkingBasement: Boolean,
-        privateParkingOutside: Boolean,
-        publicParking: Boolean,
+      officeSetup: {
+        cabins: Number,
+        seats: Number,
+        meetingRooms: Number,
+        reception: Boolean,
+        pantry: Boolean
       },
-      numberOfParking: Number,
 
+      lifts: {
+        passenger: Boolean,
+        service: Boolean
+      },
 
+      parking: {
+        basement: Number,
+        open: Number
+      },
 
-      
+      totalFloors: Number,
+      yourFloor: Number,
+      availableFrom: Date
     },
 
-    // ===== PG DETAILS =====
+    /* ===== PG ===== */
     pgDetails: {
       pgName: String,
-      pgFor: String, // Male, Female, All
-      bestSuitedFor: [String], // Working, Student, Business, Other
+      pgFor: {
+        type: String,
+        enum: ["male", "female", "all"]
+      },
+      bestSuitedFor: [String],
       totalFloors: Number,
-      roomSharingType: [
-        {
-          RoomType: [String],
-          rentAmount: Number,  //rant amount for private, twin, triple, quad
-          securityDeposit: String, //security for private, twin, triple, quad
-          amount: Number, //amount for private, twin, triple, quad
-          NumberOfRooms: Number,
-          attachedBathroom: Boolean,
-          attachedBalcony: Boolean,
-        },
-      ],
-      allfurnishType: {
-        furnishType: String,
-        service: [
-          {
-            nameOfAminities: String,
-            numberOfamenities: Number,
-          }
 
-        ]
+      roomTypes: [
+        {
+          sharingType: String,
+          rent: Number,
+          deposit: Number,
+          roomsAvailable: Number,
+          attachedBathroom: Boolean,
+          attachedBalcony: Boolean
+        }
+      ],
+
+      furnishing: furnishingSchema,
+
+      food: {
+        included: Boolean,
+        meals: [String]
       },
 
       parking: {
         covered: Number,
         open: Number
       },
-
       managedBy: String,
       managerStaysAtPG: Boolean,
-      availableDate: Date,
-      addMoreRentdetails: [
-        {
-          moreChanges: {
-            maintenance: Number,
-            booking: Number,
-            other: Number,
-          },
-          isPriceNgotiable: Boolean,
-          isElectricicyChanges: Boolean,
-        }
-      ],
-
       includedServices: [String],
-
-      foodIncluded: Boolean,
-      mealsAvailable: [
-        {
-          selectMeals: String,
-          mealType: String,
-          availableWeekday: [String],
-          availableWeekend: [String],
-          mealAmount: Number
-        }
-      ], // Breakfast, Lunch, Dinner
+      availableFrom: Date
     },
 
-    // ===== CO-LIVING DETAILS (Need Roommate / Need Room) =====
+    /* ===== CO-LIVING ===== */
     coLivingDetails: {
       profileImage: String,
       name: String,
       mobileNumber: String,
-      isPhonePrivate: {
-        type: Boolean,
-        default: false
-      },
+      isPhonePrivate: { type: Boolean, default: false },
       dateOfBirth: Date,
-      gender: String, // Male, Female, Other
+      gender: String,
       occupation: String,
       occupationName: String,
       languages: String,
       hobbies: String,
-      // if select Need Room/Flat
-      availableFrom: Date, //----
 
       bhk: String,
-      allfurnishType: {
-        furnishType: String,
-        service: [
-          {
-            nameOfAminities: String,
-            numberOfamenities: Number,
-          }
-
-        ]
-      },
-      addmoreFurnishing: {
-        service: [
-          {
-            nameOfAminities: String,
-            numberOfamenities: Number,
-          }
-
-        ]
-      },
+      furnishing: furnishingSchema,
       roomDetails: [String],
-      totalFloores: Number,
+      totalFloors: Number,
       yourFloor: Number,
       amenities: [String],
       rentAmount: Number,
-      addMoreRentdetails: [
-        {
-          isPriceNgotiable: Boolean,
-          isElectricicyChanges: Boolean,
-          moreChanges: {
-            maintenance: Number,
-            booking: Number,
-            other: Number,
-          },
-        }
-      ],
+
       lookingToShiftBy: Date,
       budgetRange: {
         min: Number,
@@ -307,145 +209,99 @@ const propertySchema = new mongoose.Schema(
       partnerGender: String,
       ageLimit: {
         min: String,
-        max: String,
+        max: String
       },
       partnerOccupation: [String],
-
+      availableFrom: Date
     },
 
-    // ===== PRICING =====
+    /* ===== PRICING ===== */
     pricing: {
-      rentType: String,
-      leaseYear: Number,
-      rentAmount: Number,
-      // Pricing
-      pricePerSquare: Number,
-      ExpectedPrice: Number,
-      deal: Boolean,
-      discounttype: [
+      rent: {
+        type: String,
+        amount: Number,
+        isElectricity: Boolean,
+        isNegotiable: Boolean
+      },
+      salePrice: Number,
+      
+      amenities: [
         {
           type: String,
-          discount: Number
+          amount: Number
         }
       ],
-      valid: Date,
-      available: Boolean,
-      addMorePricedetails: [
-        {
-          morePricing: {
-            booking: Number,
-            anualDuePay: Number,
-            other: Number,
-          },
-          isPriceNgotiable: Boolean,
-          isUpsAndDgChanges: Boolean,
-          isElectricity: Boolean,
-          isTaxAndGovChanges: Boolean,
-        }
-      ],
-      securityDepositType: String,
-      securityDepositAmount: Number,
+      
+      securityDeposit: {
+        type: String,
+        amount: Number
+      },
+
       noticePeriod: Number,
-      lockInPeriodType: String,
-      lockInPeriodAmount: Number,
-
-      salePrice: Number,
-      depositAmount: Number,
-      maintenanceAmount: Number,
-      maintenanceType: String, // Monthly, Quarterly, Yearly
-    },
-
-    // ===== LOCATION =====
-    location: {
-      city: String,
-      locality: String,
-      society: String,
-      landmark: String,
-      pincode: String,
-      coordinates: {
-        lat: Number,
-        lng: Number
+      
+      lockInPeriod: {
+        type: String,
+        month: Number
+      },
+      
+      additionalCharges: {
+        booking: Number,
+        electricity: Boolean,
+        other: Number
       }
     },
 
-    // ===== CONTACT =====
+    /* ===== LOCATION ===== */
+    location: {
+      city: String,
+      locality: String,
+      society: String
+    },
+
+    /* ===== CONTACT ===== */
     contact: {
-      phoneNumber: String,
-      isPhonePrivate: Boolean,
-      alternatePhone: String,
+      phone: String,
       email: String,
-      entryTime: String,
-      about: String,
-      instaLink: String,
-      facebookLink: String,
-      LinkedinLink: String,
-      amenities: [String],
-      preferences: [String],
-      pgRules: [String],
-      area: [String],
+      phonePrivate: Boolean
     },
 
-    // ===== AMENITIES & PREFERENCES =====
-    // ===== PHOTOS =====
-    // photos: [
-    //   {
-    //     publicId: String
-    //   }
-    // ],
-    
-    image: String,
-    Description: String,
+    /* ===== MEDIA ===== */
+    images: [
+      {
+        _id: false,
+        url: String,
+        publicId: String,
+        isPrimary: { type: Boolean, default: false }
+      }
+    ],
+    description: String,
 
-
-    // ===== ADMIN METRICS =====
-    listingScore: {
-      type: Number,
-      default: 0
-    },
+    /* ===== ADMIN ===== */
+    listingScore: { type: Number, default: 0 },
 
     flags: {
       suspicious: { type: Boolean, default: false }
     },
 
-    // ===== SOFT DELETE =====
-    isDeleted: {
-      type: Boolean,
-      default: false
-    },
-    deletedAt: {
-      type: Date,
-      default: null
-    },
-    deletedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin",
-      default: null
-    },
+    /* ===== SOFT DELETE ===== */
+    isDeleted: { type: Boolean, default: false },
 
-    // ===== PREMIUM / BOOST =====
-    isPremium: {
-      type: Boolean,
-      default: false
-    },
+    /* ===== PREMIUM ===== */
+    isPremium: { type: Boolean, default: false },
     premium: {
       startDate: Date,
       endDate: Date,
-      planName: String,
-      boostRank: { type: Number, default: 0 }
+      plan: String
     }
   },
   { timestamps: true }
 );
 
-// Indexes
-propertySchema.index({ status: 1 });
+/* ===== INDEXES ===== */
 propertySchema.index({ listingType: 1 });
-propertySchema.index({ propertyType: 1 });
-propertySchema.index({ propertyCategory: 1 });
+propertySchema.index({ status: 1 });
 propertySchema.index({ "location.city": 1 });
 propertySchema.index({ listingScore: -1 });
-propertySchema.index({ isPremium: -1 });
 propertySchema.index({ createdAt: -1 });
-propertySchema.index({ userId: 1 });
 
 module.exports = mongoose.model("Property", propertySchema);
