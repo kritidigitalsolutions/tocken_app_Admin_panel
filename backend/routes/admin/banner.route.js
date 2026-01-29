@@ -8,7 +8,7 @@ const {
   deleteBanner,
   updateBanner,
   toggleBannerStatus
-} = require("../../controllers/banner.controller");
+} = require("../../controllers/admin/banner.controller");
 
 // GET all banners (admin)
 router.get("/", getBanners);

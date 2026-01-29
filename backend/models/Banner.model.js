@@ -9,7 +9,12 @@ const bannerSchema = new mongoose.Schema(
 
     image: {
       type: String,
-      required: true // Cloudinary URL
+      required: true // Firebase Storage URL
+    },
+
+    fileName: {
+      type: String,
+      default: "" // Firebase Storage file path for deletion
     },
 
     redirectUrl: {
@@ -27,3 +32,4 @@ const bannerSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model("Banner", bannerSchema);
+

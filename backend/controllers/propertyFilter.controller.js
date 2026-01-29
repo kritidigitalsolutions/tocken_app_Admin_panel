@@ -1,4 +1,86 @@
 const Property = require("../models/property.model");
+const axios = require("axios");
+
+/**
+ * SEARCH LOCATIONS FOR FILTER (OpenStreetMap)
+ * GET /api/properties/locations?q=kamla+nagar
+ * 
+ * This endpoint provides location suggestions for the filter dropdown
+ * Uses OpenStreetMap Nominatim API
+ */
+exports.searchLocationsForFilter = async (req, res) => {
+    try {
+        const { q, countrycode = "in" } = req.query;
+
+        if (!q || q.trim() === "") {
+            return res.status(400).json({
+                success: false,
+                message: "Search query is required"
+            });
+        }
+
+        const response = await axios.get(
+            "https://nominatim.openstreetmap.org/search",
+            {
+                params: {
+                    q: q,
+                    format: "json",
+                    addressdetails: 1,
+                    limit: 10,
+                    countrycodes: countrycode
+                },
+                headers: {
+                    "User-Agent": "TockenApp/1.0 (admin@realestate.com)"
+                }
+            }
+        );
+
+        if (response.data.length === 0) {
+            return res.json({
+                success: true,
+                count: 0,
+                locations: [],
+                message: "No locations found"
+            });
+        }
+
+        const locations = response.data.map(item => ({
+            placeId: item.place_id,
+            displayName: item.display_name,
+            city:
+                item.address?.city ||
+                item.address?.town ||
+                item.address?.village ||
+                item.address?.county ||
+                item.address?.state_district ||
+                "",
+            locality:
+                item.address?.suburb ||
+                item.address?.neighbourhood ||
+                item.address?.residential ||
+                "",
+            state: item.address?.state || "",
+            country: item.address?.country || "India",
+            pincode: item.address?.postcode || "",
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon)
+        }));
+
+        res.json({
+            success: true,
+            count: locations.length,
+            locations
+        });
+
+    } catch (error) {
+        console.error("Location search error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to search locations",
+            error: error.message
+        });
+    }
+};
 
 /**
  * FILTER PROPERTIES API
@@ -7,6 +89,7 @@ const Property = require("../models/property.model");
  * This API supports all filter options from Flutter app:
  * - Rent/Lease, Co-living, PG, Buy, Plot/Land tabs
  * - Property Type, BHK, Budget, Area, Furnish, etc.
+ * - OpenStreetMap location search with lat/lng support
  */
 exports.filterProperties = async (req, res) => {
     try {
@@ -14,9 +97,13 @@ exports.filterProperties = async (req, res) => {
             // Tab selection
             listingType,        // RENT, SELL, Co-Living, PG
 
-            // Location
+            // Location (from OpenStreetMap selection)
             city,
             locality,
+            state,
+            lat,                // Latitude from OpenStreetMap
+            lng,                // Longitude from OpenStreetMap
+            radius,             // Radius in km for nearby search
 
             // Property Category
             propertyType,       // RESIDENTIAL, COMMERCIAL
@@ -74,12 +161,100 @@ exports.filterProperties = async (req, res) => {
             query.listingType = listingType;
         }
 
-        // ===== LOCATION FILTER =====
-        if (city) {
-            query["location.city"] = { $regex: city, $options: "i" };
+        // ===== LOCATION FILTER (OpenStreetMap Integrated) =====
+        let locationData = null;
+
+        // If lat/lng provided directly, use coordinate-based search
+        if (lat && lng) {
+            const radiusKm = parseFloat(radius) || 10; // Default 10km radius
+            const radiusInDegrees = radiusKm / 111; // ~111km per degree
+
+            query["location.coordinates.lat"] = {
+                $gte: parseFloat(lat) - radiusInDegrees,
+                $lte: parseFloat(lat) + radiusInDegrees
+            };
+            query["location.coordinates.lng"] = {
+                $gte: parseFloat(lng) - radiusInDegrees,
+                $lte: parseFloat(lng) + radiusInDegrees
+            };
+
+            locationData = { lat: parseFloat(lat), lng: parseFloat(lng), source: "direct" };
         }
-        if (locality) {
-            query["location.locality"] = { $regex: locality, $options: "i" };
+        // If city/locality provided, fetch from OpenStreetMap and use coordinates
+        else if (city || locality) {
+            const searchQuery = locality ? `${locality}, ${city || ""}, India` : `${city}, India`;
+
+            try {
+                const osmResponse = await axios.get(
+                    "https://nominatim.openstreetmap.org/search",
+                    {
+                        params: {
+                            q: searchQuery,
+                            format: "json",
+                            addressdetails: 1,
+                            limit: 1,
+                            countrycodes: "in"
+                        },
+                        headers: {
+                            "User-Agent": "TockenApp/1.0 (admin@realestate.com)"
+                        }
+                    }
+                );
+
+                if (osmResponse.data && osmResponse.data.length > 0) {
+                    const location = osmResponse.data[0];
+                    const osmLat = parseFloat(location.lat);
+                    const osmLng = parseFloat(location.lon);
+                    const radiusKm = parseFloat(radius) || 15; // Default 15km for city search
+                    const radiusInDegrees = radiusKm / 111;
+
+                    // Use coordinates for precise location matching
+                    query["location.coordinates.lat"] = {
+                        $gte: osmLat - radiusInDegrees,
+                        $lte: osmLat + radiusInDegrees
+                    };
+                    query["location.coordinates.lng"] = {
+                        $gte: osmLng - radiusInDegrees,
+                        $lte: osmLng + radiusInDegrees
+                    };
+
+                    locationData = {
+                        searchQuery,
+                        displayName: location.display_name,
+                        city: location.address?.city || location.address?.town || location.address?.state_district || city,
+                        locality: location.address?.suburb || location.address?.neighbourhood || locality || "",
+                        state: location.address?.state || "",
+                        lat: osmLat,
+                        lng: osmLng,
+                        radius: radiusKm,
+                        source: "openstreetmap"
+                    };
+                } else {
+                    // Fallback to text-based search if OpenStreetMap returns no results
+                    if (city) {
+                        query["location.city"] = { $regex: city, $options: "i" };
+                    }
+                    if (locality) {
+                        query["location.locality"] = { $regex: locality, $options: "i" };
+                    }
+                    locationData = { city, locality, source: "text_fallback" };
+                }
+            } catch (osmError) {
+                console.error("OpenStreetMap API error:", osmError.message);
+                // Fallback to text-based search on API error
+                if (city) {
+                    query["location.city"] = { $regex: city, $options: "i" };
+                }
+                if (locality) {
+                    query["location.locality"] = { $regex: locality, $options: "i" };
+                }
+                locationData = { city, locality, source: "text_fallback", error: osmError.message };
+            }
+        }
+
+        // State filter (additional)
+        if (state) {
+            query["location.state"] = { $regex: state, $options: "i" };
         }
 
         // ===== PROPERTY TYPE FILTER =====
@@ -103,20 +278,20 @@ exports.filterProperties = async (req, res) => {
                 query["residentialDetails.bhkType"] = { $in: bhkArray };
             }
 
-            // Preferred Tenant
+            // Preferred Tenant (database field: preferredTenants - array)
             if (preferredTenant) {
                 const tenants = Array.isArray(preferredTenant)
                     ? preferredTenant
                     : preferredTenant.split(",");
-                query["residentialDetails.preferredTenant"] = { $in: tenants };
+                query["residentialDetails.preferredTenants"] = { $in: tenants };
             }
 
-            // Furnish Type
+            // Furnish Type (database field: furnishing.type)
             if (furnishType) {
                 const furnishTypes = Array.isArray(furnishType)
                     ? furnishType
                     : furnishType.split(",");
-                query["residentialDetails.furnishType"] = { $in: furnishTypes };
+                query["residentialDetails.furnishing.type"] = { $in: furnishTypes };
             }
 
             // Property Condition (for Buy)
@@ -124,11 +299,11 @@ exports.filterProperties = async (req, res) => {
                 query["commercialDetails.constructionStatus"] = propertyCondition;
             }
 
-            // Budget filter (RENT = rentAmount, SELL = salePrice)
+            // Budget filter (RENT = pricing.rent.amount, SELL = pricing.sale.amount)
             if (minBudget || maxBudget) {
                 const priceField = listingType === "RENT"
-                    ? "pricing.rentAmount"
-                    : "pricing.salePrice";
+                    ? "pricing.rent.amount"
+                    : "pricing.sale.amount";
 
                 if (minBudget && maxBudget) {
                     query[priceField] = {
@@ -142,12 +317,12 @@ exports.filterProperties = async (req, res) => {
                 }
             }
 
-            // Area filter
+            // Area filter (database field: area.builtUp.value)
             if (minArea || maxArea) {
                 const areaQuery = {};
                 if (minArea) areaQuery.$gte = parseInt(minArea);
                 if (maxArea) areaQuery.$lte = parseInt(maxArea);
-                query["residentialDetails.area.builtUp"] = areaQuery;
+                query["residentialDetails.area.builtUp.value"] = areaQuery;
             }
         }
 
@@ -172,12 +347,12 @@ exports.filterProperties = async (req, res) => {
                 query["pgDetails.bestSuitedFor"] = { $in: suitedFor };
             }
 
-            // Budget for PG
+            // Budget for PG (database field: pricing.rent.amount)
             if (minBudget || maxBudget) {
                 const priceQuery = {};
                 if (minBudget) priceQuery.$gte = parseInt(minBudget);
                 if (maxBudget) priceQuery.$lte = parseInt(maxBudget);
-                query["pricing.rentAmount"] = priceQuery;
+                query["pricing.rent.amount"] = priceQuery;
             }
         }
 
@@ -256,12 +431,6 @@ exports.filterProperties = async (req, res) => {
         // ===== SORTING =====
         let sortOption = { createdAt: -1 }; // Default: newest first
 
-        // Premium properties first, then by sort option
-        const sortPipeline = [
-            { isPremium: -1 },
-            { "premium.boostRank": -1 }
-        ];
-
         switch (sortBy) {
             case "price_low":
                 sortOption = { "pricing.rentAmount": 1, "pricing.salePrice": 1 };
@@ -277,6 +446,12 @@ exports.filterProperties = async (req, res) => {
                 break;
             case "score":
                 sortOption = { listingScore: -1 };
+                break;
+            case "distance":
+                // Distance sorting (if coordinates provided)
+                if (lat && lng) {
+                    sortOption = { "location.coordinates.lat": 1 };
+                }
                 break;
         }
 
@@ -306,7 +481,8 @@ exports.filterProperties = async (req, res) => {
             filters: {
                 applied: Object.keys(query).length - 2, // Exclude status and isDeleted
                 query: req.query
-            }
+            },
+            location: locationData
         });
 
     } catch (error) {
@@ -346,6 +522,7 @@ exports.searchProperties = async (req, res) => {
                 { "location.locality": searchRegex },
                 { "location.society": searchRegex },
                 { "location.landmark": searchRegex },
+                { "location.state": searchRegex },
                 { propertyCategory: searchRegex }
             ]
         };
@@ -388,10 +565,10 @@ exports.searchProperties = async (req, res) => {
 };
 
 /**
- * GET NEARBY PROPERTIES
+ * GET NEARBY PROPERTIES (OpenStreetMap Enhanced)
  * GET /api/properties/nearby?lat=28.5&lng=77.2&radius=5
  * 
- * Get properties within radius (km)
+ * Get properties within radius (km) using OpenStreetMap coordinates
  */
 exports.getNearbyProperties = async (req, res) => {
     try {
@@ -400,7 +577,7 @@ exports.getNearbyProperties = async (req, res) => {
         if (!lat || !lng) {
             return res.status(400).json({
                 success: false,
-                message: "Latitude and longitude are required"
+                message: "Latitude and longitude are required. Use OpenStreetMap location search to get coordinates."
             });
         }
 
@@ -439,6 +616,11 @@ exports.getNearbyProperties = async (req, res) => {
         res.status(200).json({
             success: true,
             properties,
+            searchLocation: {
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+                radius: parseFloat(radius)
+            },
             pagination: {
                 currentPage: parseInt(page),
                 totalPages: Math.ceil(totalCount / parseInt(limit)),

@@ -1,6 +1,6 @@
 const Property = require("../models/property.model");
 const { calculateListingScore, getListingGrade } = require("../utils/listingScore");
-const cloudinary = require("../config/cloudinary");
+const { uploadToFirebase, uploadMultipleToFirebase, deleteFromFirebase } = require("../utils/firebaseUpload");
 
 // 1️⃣ Create property with full details (as DRAFT)
 exports.createDraft = async (req, res) => {
@@ -12,20 +12,20 @@ exports.createDraft = async (req, res) => {
       propertyType: req.body.propertyType,
       propertyCategory: req.body.propertyCategory,
       status: "DRAFT", // Always create as DRAFT
-      
+
       // Details based on property type
       ...(req.body.residentialDetails && { residentialDetails: req.body.residentialDetails }),
       ...(req.body.commercialDetails && { commercialDetails: req.body.commercialDetails }),
       ...(req.body.pgDetails && { pgDetails: req.body.pgDetails }),
       ...(req.body.coLivingDetails && { coLivingDetails: req.body.coLivingDetails }),
-      
+
       // Pricing
       ...(req.body.pricing && { pricing: req.body.pricing }),
-      
+
       // Location & Contact
       ...(req.body.location && { location: req.body.location }),
       ...(req.body.contact && { contact: req.body.contact }),
-      
+
       // Media
       ...(req.body.images && { images: req.body.images }),
       ...(req.body.description && { description: req.body.description })
@@ -52,7 +52,7 @@ exports.createDraft = async (req, res) => {
 exports.updateProperty = async (req, res) => {
   try {
     const property = await Property.findById(req.params.id);
-    
+
     if (!property) {
       return res.status(404).json({
         success: false,
@@ -203,73 +203,112 @@ function validatePropertyData(property) {
 }
 
 
+// Upload photos to Firebase Storage
 exports.uploadPhotos = async (req, res) => {
-  const property = await Property.findById(req.params.id);
-  if (!property) {
-    return res.status(404).json({ message: "Property not found" });
-  }
+  try {
+    const property = await Property.findById(req.params.id);
+    if (!property) {
+      return res.status(404).json({ success: false, message: "Property not found" });
+    }
 
-  const uploadedPhotos = [];
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ success: false, message: "No files uploaded" });
+    }
 
-  for (const file of req.files) {
-    const result = await cloudinary.uploader.upload(file.path, {
-      folder: "real-estate/properties"
+    const uploadedPhotos = [];
+
+    // Upload each file to Firebase Storage
+    for (const file of req.files) {
+      const result = await uploadToFirebase(file, "properties");
+      uploadedPhotos.push({
+        url: result.url,
+        publicId: result.fileName,  // Store fileName as publicId for deletion
+        isPrimary: property.images.length === 0 && uploadedPhotos.length === 0 // First image is primary
+      });
+    }
+
+    property.images.push(...uploadedPhotos);
+
+    // 🔁 Recalculate listing score
+    const score = calculateListingScore(property);
+    property.listingScore = score;
+    property.listingGrade = getListingGrade(score);
+
+    await property.save();
+
+    res.json({
+      success: true,
+      message: "Photos uploaded successfully to Firebase Storage",
+      images: property.images,
+      listingScore: property.listingScore
     });
-
-    uploadedPhotos.push({
-      url: result.secure_url,
-      publicId: result.public_id
+  } catch (error) {
+    console.error("ERROR UPLOADING PHOTOS:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to upload photos",
+      error: error.message
     });
   }
-
-  property.photos.push(...uploadedPhotos);
-
-  // 🔁 Recalculate listing score
-  const score = calculateListingScore(property);
-  property.listingScore = score;
-  property.listingGrade = getListingGrade(score);
-
-  await property.save();
-
-  res.json({
-    message: "Photos uploaded successfully",
-    photos: property.photos,
-    listingScore: property.listingScore
-  });
 };
 
+// Delete photo from Firebase Storage
 exports.deletePhoto = async (req, res) => {
-  const { id, publicId } = req.params;
+  try {
+    const { id, photoId } = req.params;
 
-  const property = await Property.findById(id);
-  if (!property) {
-    return res.status(404).json({ message: "Property not found" });
+    const property = await Property.findById(id);
+    if (!property) {
+      return res.status(404).json({ success: false, message: "Property not found" });
+    }
+
+    // Find the photo to delete by publicId
+    const photoIndex = property.images.findIndex(
+      (photo) => photo.publicId === photoId || photo.publicId === decodeURIComponent(photoId)
+    );
+
+    if (photoIndex === -1) {
+      return res.status(404).json({ success: false, message: "Photo not found" });
+    }
+
+    const photoToDelete = property.images[photoIndex];
+
+    // Delete from Firebase Storage
+    if (photoToDelete.publicId) {
+      try {
+        await deleteFromFirebase(photoToDelete.publicId);
+      } catch (deleteError) {
+        console.error("Error deleting from Firebase:", deleteError);
+        // Continue with DB removal even if Firebase delete fails
+      }
+    }
+
+    // Remove from DB
+    property.images.splice(photoIndex, 1);
+
+    // 🔁 Recalculate score
+    const score = calculateListingScore(property);
+    property.listingScore = score;
+    property.listingGrade = getListingGrade(score);
+
+    await property.save();
+
+    res.json({
+      success: true,
+      message: "Photo deleted from Firebase Storage",
+      images: property.images,
+      listingScore: property.listingScore
+    });
+  } catch (error) {
+    console.error("ERROR DELETING PHOTO:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete photo",
+      error: error.message
+    });
   }
-
-  // Delete from cloudinary
-  await cloudinary.uploader.destroy(publicId);
-
-  // Remove from DB
-  property.photos = property.photos.filter(
-    (photo) => photo.publicId !== publicId
-  );
-
-  // 🔁 Recalculate score
-  const score = calculateListingScore(property);
-  property.listingScore = score;
-  property.listingGrade = getListingGrade(score);
-
-  await property.save();
-
-  res.json({
-    message: "Photo deleted",
-    photos: property.photos,
-    listingScore: property.listingScore
-  });
 };
 
 
-// console.log("BODY:", req.body);
-// console.log("USER:", req.user);
 
 

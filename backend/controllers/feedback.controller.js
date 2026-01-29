@@ -3,10 +3,10 @@ const Feedback = require("../models/feedback.model");
 // POST feedback (User - public)
 exports.createFeedback = async (req, res) => {
   try {
-    const { feedbackType, description, name, email, phone } = req.body;
+    const { feedbackType, description, name } = req.body;
 
     // Validation
-    if (!feedbackType || !description || !name || !email || !phone) {
+    if (!feedbackType || !description || !name ) {
       return res.status(400).json({
         success: false,
         message: "All fields are required"
@@ -21,8 +21,6 @@ exports.createFeedback = async (req, res) => {
       feedbackType,
       description,
       name,
-      email,
-      phone
     });
 
     res.status(201).json({

@@ -14,10 +14,16 @@ const wallpaperSchema = new mongoose.Schema(
 
     image: {
       type: String,
-      required: true // Cloudinary URL
+      required: true // Firebase Storage URL
+    },
+
+    fileName: {
+      type: String,
+      default: "" // Firebase Storage file path for deletion
     }
   },
   { timestamps: true }
 );
 
 module.exports = mongoose.model("Wallpaper", wallpaperSchema);
+

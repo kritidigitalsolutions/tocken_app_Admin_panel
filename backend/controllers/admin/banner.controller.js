@@ -1,4 +1,5 @@
-const Banner = require("../models/Banner.model");
+const Banner = require("../../models/Banner.model");
+const { uploadToFirebase, deleteFromFirebase } = require("../../utils/firebaseUpload");
 
 exports.getBanners = async (req, res) => {
   try {
@@ -24,14 +25,16 @@ exports.createBanner = async (req, res) => {
       return res.status(400).json({ message: "Image required" });
     }
 
-    // For Cloudinary storage, use req.file.path or req.file.secure_url
-    const imageUrl = req.file.path || req.file.secure_url;
+    // Upload to Firebase Storage
+    const uploadResult = await uploadToFirebase(req.file, "banners");
+    const imageUrl = uploadResult.url;
 
     const banner = await Banner.create({
       title,
       status,
       redirectUrl,
-      image: imageUrl
+      image: imageUrl,
+      fileName: uploadResult.fileName  // Store for deletion later
     });
 
     res.status(201).json({
@@ -56,11 +59,22 @@ exports.updateBanner = async (req, res) => {
     if (title) banner.title = title;
     if (redirectUrl !== undefined) banner.redirectUrl = redirectUrl;
     if (status) banner.status = status;
-    
+
     // Update image only if a new one is provided
     if (req.file) {
-      const imageUrl = req.file.path || req.file.secure_url;
-      banner.image = imageUrl;
+      // Delete old image from Firebase if exists
+      if (banner.fileName) {
+        try {
+          await deleteFromFirebase(banner.fileName);
+        } catch (deleteError) {
+          console.error("Error deleting old banner image:", deleteError);
+        }
+      }
+
+      // Upload new image to Firebase Storage
+      const uploadResult = await uploadToFirebase(req.file, "banners");
+      banner.image = uploadResult.url;
+      banner.fileName = uploadResult.fileName;
     }
 
     await banner.save();
@@ -79,13 +93,13 @@ exports.updateBanner = async (req, res) => {
 exports.toggleBannerStatus = async (req, res) => {
   try {
     console.log("🔄 Toggle banner request for ID:", req.params.id);
-    
+
     const banner = await Banner.findById(req.params.id);
     if (!banner) {
       console.log("❌ Banner not found:", req.params.id);
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: "Banner not found" 
+        message: "Banner not found"
       });
     }
 
@@ -103,19 +117,30 @@ exports.toggleBannerStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Toggle banner status error:", error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      message: error.message 
+      message: error.message
     });
   }
 };
 
 exports.deleteBanner = async (req, res) => {
   try {
-    const banner = await Banner.findByIdAndDelete(req.params.id);
+    const banner = await Banner.findById(req.params.id);
     if (!banner) {
       return res.status(404).json({ message: "Banner not found" });
     }
+
+    // Delete image from Firebase Storage
+    if (banner.fileName) {
+      try {
+        await deleteFromFirebase(banner.fileName);
+      } catch (deleteError) {
+        console.error("Error deleting banner image from Firebase:", deleteError);
+      }
+    }
+
+    await Banner.findByIdAndDelete(req.params.id);
 
     res.json({
       success: true,
@@ -126,4 +151,5 @@ exports.deleteBanner = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 

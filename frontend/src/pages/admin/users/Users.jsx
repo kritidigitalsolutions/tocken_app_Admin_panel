@@ -18,6 +18,7 @@ import {
   Eye,
   X
 } from "lucide-react";
+const defaultAvatar = "https://www.pngall.com/wp-content/uploads/15/User-PNG-Images-HD.png";
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -210,8 +211,12 @@ const Users = () => {
                       <div className="flex items-center gap-3">
                         {user.profileImage ? (
                           <img
-                            src={user.profileImage}
-                            alt={user.name}
+                            src={user.profileImage || defaultAvatar}
+                            alt={user.name || "User"}
+                            onError={(e)=>{
+                              e.target.onerror = null;
+                              e.target.src = defaultAvatar;
+                            }}
                             className="w-10 h-10 rounded-full object-cover border-2 border-indigo-500"
                           />
                         ) : (

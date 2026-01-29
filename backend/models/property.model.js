@@ -17,11 +17,11 @@ const furnishingSchema = {
 };
 
 const parkingSchema = {
-  parkingDetails:[
+  parkingDetails: [
     {
-    label: String,
-    value: Number 
-  }
+      label: String,
+      value: Number
+    }
   ]
 }
 
@@ -75,10 +75,14 @@ const propertySchema = new mongoose.Schema(
 
     /* ===== RESIDENTIAL ===== */
     residentialDetails: {
+      // for sell property
+      constructionStatus: String,
+      expectedTimePossession: String,
+      // for sell property
       ageOfProperty: String,
       bhkType: String,
-      bathrooms: Number,
-      balconies: Number,
+      bathrooms: String,
+      balconies: String,
       additionalRooms: [String],
 
       furnishing: furnishingSchema,
@@ -86,31 +90,43 @@ const propertySchema = new mongoose.Schema(
       facing: String,
       flooring: String,
       ownership: String,
-      constructionStatus: String,
-
       area: areaSchema,
 
       parking: parkingSchema,
 
       totalFloors: Number,
       yourFloor: Number,
-
+      isBroker: Boolean,
       preferredTenants: [String],
-      availableFrom: Date
+      availableFrom: Date,
+
+      // Geospatial coordinates for nearby search
+      coordinates: {
+        type: {
+          type: String,
+          enum: ["Point"],
+          default: "Point"
+        },
+        coordinates: {
+          type: [Number], // [longitude, latitude]
+          default: [0, 0]
+        }
+      }
     },
 
     /* ===== COMMERCIAL ===== */
     commercialDetails: {
+      constructionStatus: String,
+      ageOfProperty: String,
+      washrooms: String,
+      suitableFor: [String],
+      locationHub: String,
+      zoneType: String,
       propertyCondition: {
         type: String,
         enum: ["readyToUse", "bareShell"]
       },
-
-      suitableFor: [String],
-      washrooms: Number,
-      zoneType: String,
-      ageOfProperty: String,
-      constructionStatus: String,
+      constructionStatusOfWall: String,
 
       furnishing: furnishingSchema,
       area: areaSchema,
@@ -123,26 +139,62 @@ const propertySchema = new mongoose.Schema(
       occupancyCertificate: Boolean,
       nocCertified: Boolean,
 
+      // Office Layout
       officeSetup: {
         cabins: Number,
-        seats: Number,
         meetingRooms: Number,
-        reception: Boolean,
-        pantry: Boolean
+        seats: Number
       },
 
+      // Available Features (from UI)
+      availableFeatures: {
+        // Reception Area
+        receptionArea: {
+          isAvailable: Boolean
+        },
+        // Pantry
+        pantry: {
+          isAvailable: Boolean,
+          type: { type: String, enum: ["Private", "Shared"] },
+          size: Number, // in sqft
+          unit: String
+        },
+        // Conference Room
+        conferenceRoom: {
+          isAvailable: Boolean,
+          count: Number
+        },
+        // Washrooms
+        washrooms: {
+          isAvailable: Boolean,
+          privateCount: Number,
+          publicCount: Number
+        },
+        // Amenities Toggles
+        centralAC: Boolean,
+        ups: Boolean,
+        oxygenDuct: Boolean,
+        furnished: Boolean
+      },
+
+      // Lifts
       lifts: {
-        passenger: Boolean,
-        service: Boolean
+        passengerLifts: Number,
+        serviceLifts: Number
       },
 
+      // Parking
       parking: {
-        basement: Number,
-        open: Number
+        isAvailable: Boolean,
+        privateBasement: Number,
+        privateOutside: Number,
+        publicParking: Number,
+        numberOfParking: Number
       },
 
       totalFloors: Number,
       yourFloor: Number,
+      isBroker: Boolean,
       availableFrom: Date
     },
 
@@ -159,9 +211,10 @@ const propertySchema = new mongoose.Schema(
       roomTypes: [
         {
           sharingType: String,
-          rent: Number,
-          deposit: Number,
           roomsAvailable: Number,
+          rentAmount: Number,
+          securityDepositType: String,
+          month: String,
           attachedBathroom: Boolean,
           attachedBalcony: Boolean
         }
@@ -180,8 +233,12 @@ const propertySchema = new mongoose.Schema(
       },
       managedBy: String,
       managerStaysAtPG: Boolean,
+      availableFrom: Date,
       includedServices: [String],
-      availableFrom: Date
+      noticePeriod: Number,
+      lockInPeriod: String,
+      month: Number,
+
     },
 
     /* ===== CO-LIVING ===== */
@@ -221,38 +278,62 @@ const propertySchema = new mongoose.Schema(
 
     /* ===== PRICING ===== */
     pricing: {
+      // for sell residential property
+      sell:{
+        expectedPrice: Number,
+        PricePerSqFt: Number,
+        istaxAndGov: Boolean,
+        isUpsAndDg: Boolean,
+        isNegotiable: Boolean,
+        hotDeal: Boolean,
+        spacifyDiscount: Number,
+        spacialPricingValid: Date,
+        isFinancing: Boolean,
+      },
+      // end sell residential property section
       rent: {
-        label: String,
-        amount: Number,
+        pricingRoomtype: String,
+        rentAmount: Number,
+        leaseAmount: Number,
         isElectricity: Boolean,
-        isNegotiable: Boolean
+        isNegotiable: Boolean,
+        istaxAndGov: Boolean,
+        YearlyRentIncreaseByPercent: Number    // for commercial office case
       },
       salePrice: Number,
-      
+
       amenities: [
         {
           label: String,
           amount: Number
         }
       ],
-      
+
       securityDeposit: {
-        label: String,
+        DepositType: String,
         amount: Number
       },
 
       noticePeriod: Number,
-      
+
       lockInPeriod: {
         label: String,
         month: Number
       },
-      
-      additionalCharges: {
-        booking: Number,
-        electricity: Boolean,
-        other: Number
-      }
+      // only for PG Details
+      mealsAvailable: String,
+      mealsType: String,
+      mealsAvailableOnWeekend: [String],
+      mealsAvailableOnWeekDay: [String],
+      mealsAmount: Number,
+      // end  PG Details
+
+      addMore: [
+        {
+          lable: String,
+          amount: Number
+        }
+      ]
     },
 
     /* ===== LOCATION ===== */
@@ -266,18 +347,22 @@ const propertySchema = new mongoose.Schema(
     contact: {
       phone: String,
       email: String,
-      phonePrivate: Boolean
+      phonePrivate: Boolean,
+      amenities: [String],
+      preferences: [String],
+
+      // for PG details
+      pgRules: [String],
+      LastEntryTime: String,
+      CommonArea: [String]
+      // end PG details
+
     },
 
+
     /* ===== MEDIA ===== */
-    images: [
-      {
-        _id: false,
-        url: String,
-        publicId: String,
-        isPrimary: { type: Boolean, default: false }
-      }
-    ],
+    images: [String],
+
     description: String,
 
     /* ===== ADMIN ===== */
@@ -307,5 +392,7 @@ propertySchema.index({ status: 1 });
 propertySchema.index({ "location.city": 1 });
 propertySchema.index({ listingScore: -1 });
 propertySchema.index({ createdAt: -1 });
+// Geospatial index for nearby search
+propertySchema.index({ "residentialDetails.coordinates": "2dsphere" });
 
 module.exports = mongoose.model("Property", propertySchema);

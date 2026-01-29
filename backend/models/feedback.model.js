@@ -10,7 +10,6 @@ const feedbackSchema = new mongoose.Schema(
 
     feedbackType: {
       type: String,
-      enum: ["Report a problem", "Raise a question", "Suggestion/Improvement", "Compliment", "Others"],
       required: true
     },
 
@@ -27,12 +26,10 @@ const feedbackSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      required: true
     },
 
     phone: {
       type: String,
-      required: true
     },
 
     status: {

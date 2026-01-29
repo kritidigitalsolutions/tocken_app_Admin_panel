@@ -8,7 +8,7 @@ const userRoutes = require("./routes/user.routes.js");
 const legalRoutes = require("./routes/legal.routes");
 const faqRoutes = require("./routes/faq.routes");
 const faqAdminRoutes = require("./routes/admin/faq.routes");
- 
+
 // Admin auth route
 const adminAuthRoutes = require("./routes/admin/auth.routes");
 
@@ -70,6 +70,9 @@ const wallpaperRoutes = require("./routes/wallpaper.routes");
 
 // admin wallpaper routes
 const adminWallpaperRoutes = require("./routes/admin/wallpaper.routes");
+
+// location routes
+const locationRoutes = require("./routes/location.routes.js");
 
 // cron job
 const cron = require("node-cron");
@@ -143,6 +146,8 @@ app.use("/api/admin/plans", isAuth, isAdmin, adminPlanRoutes);
 // admin dashboard (protected)
 app.use("/api/admin/dashboard", isAuth, isAdmin, dashboardRoutes);
 
+// location routes (public search, protected save)
+app.use("/api/location", locationRoutes);
 
 // public + user
 app.use("/api/properties", propertyRoutes);

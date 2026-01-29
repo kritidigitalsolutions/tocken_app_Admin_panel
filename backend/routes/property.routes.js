@@ -7,6 +7,9 @@ const upload = require("../middleware/multer.middleware");
 
 // ===== PUBLIC ROUTES (For Flutter App) =====
 
+// Search locations for filter dropdown (OpenStreetMap)
+router.get("/locations ", filterController.searchLocationsForFilter);
+
 // Filter properties (main filter API for app)
 router.get("/filter", filterController.filterProperties);
 
@@ -43,7 +46,7 @@ router.post(
 
 // Delete photo
 router.delete(
-  "/:id/photos/:publicId",
+  "/:id/photos/:photoId",
   auth,
   controller.deletePhoto
 );

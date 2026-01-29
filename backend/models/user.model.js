@@ -1,12 +1,30 @@
 const mongoose = require("mongoose");
 
+const locationSchema = new mongoose.Schema({
+  displayName: String,
+  city: String,
+  state: String,
+  country: String,
+  locality: String,
+  society: String,
+  pincode: String,
+  lat: String,
+  lon: String
+});
+
 const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       default: "User"
     },
- 
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      required: true
+    },
+
     firstName: {
       type: String,
       default: ""
@@ -29,8 +47,10 @@ const userSchema = new mongoose.Schema(
       unique: true
     },
 
+    location: locationSchema,
+
     profileImage: {
-      type: String // Cloudinary URL
+      type: String // Firebase Storage URL
     },
 
     userType: {

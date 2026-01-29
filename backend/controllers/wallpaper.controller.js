@@ -1,4 +1,5 @@
 const Wallpaper = require("../models/wallpaper.model");
+const { uploadToFirebase, deleteFromFirebase } = require("../utils/firebaseUpload");
 
 /**
  * GET All Wallpapers
@@ -107,9 +108,6 @@ exports.getAllWallpapersAdmin = async (req, res) => {
 exports.createWallpaper = async (req, res) => {
     try {
         const { title, description } = req.body;
-        
-        // Get image URL from Cloudinary upload (via Multer middleware)
-        const image = req.file?.path || req.file?.filename;
 
         if (!title) {
             return res.status(400).json({
@@ -118,17 +116,21 @@ exports.createWallpaper = async (req, res) => {
             });
         }
 
-        if (!image) {
+        if (!req.file) {
             return res.status(400).json({
                 success: false,
                 message: "Image is required"
             });
         }
 
+        // Upload to Firebase Storage
+        const uploadResult = await uploadToFirebase(req.file, "wallpapers");
+
         const wallpaper = await Wallpaper.create({
             title,
             description: description || "",
-            image
+            image: uploadResult.url,
+            fileName: uploadResult.fileName  // Store for deletion later
         });
 
         res.status(201).json({
@@ -171,7 +173,19 @@ exports.updateWallpaper = async (req, res) => {
 
         // Only update image if a new file was uploaded
         if (req.file) {
-            updateData.image = req.file.path || req.file.filename;
+            // Delete old image from Firebase if exists
+            if (wallpaper.fileName) {
+                try {
+                    await deleteFromFirebase(wallpaper.fileName);
+                } catch (deleteError) {
+                    console.error("Error deleting old wallpaper image:", deleteError);
+                }
+            }
+
+            // Upload new image to Firebase Storage
+            const uploadResult = await uploadToFirebase(req.file, "wallpapers");
+            updateData.image = uploadResult.url;
+            updateData.fileName = uploadResult.fileName;
         }
 
         wallpaper = await Wallpaper.findByIdAndUpdate(
@@ -202,7 +216,7 @@ exports.deleteWallpaper = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const wallpaper = await Wallpaper.findByIdAndDelete(id);
+        const wallpaper = await Wallpaper.findById(id);
 
         if (!wallpaper) {
             return res.status(404).json({
@@ -211,10 +225,20 @@ exports.deleteWallpaper = async (req, res) => {
             });
         }
 
+        // Delete image from Firebase Storage
+        if (wallpaper.fileName) {
+            try {
+                await deleteFromFirebase(wallpaper.fileName);
+            } catch (deleteError) {
+                console.error("Error deleting wallpaper image from Firebase:", deleteError);
+            }
+        }
+
+        await Wallpaper.findByIdAndDelete(id);
+
         res.status(200).json({
             success: true,
-            message: "Wallpaper deleted successfully",
-            wallpaper
+            message: "Wallpaper deleted successfully"
         });
     } catch (error) {
         console.error("Delete wallpaper error:", error);
@@ -224,3 +248,4 @@ exports.deleteWallpaper = async (req, res) => {
         });
     }
 };
+

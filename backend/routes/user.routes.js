@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const isAuth = require("../middleware/auth.middleware");
+const upload = require("../middleware/multer.middleware");
 const {
     getProfile,
     updateProfile,
@@ -10,20 +11,19 @@ const {
     requestAccountDeletion,
     cancelDeletionRequest,
     getDeletionStatus,
-    // addGstNumber
 } = require("../controllers/user.controller");
 
 // ✅ User Profile - REST APIs
 router.get("/profile", isAuth, getProfile);
 
-// fill user information first tiem
-router.post("/profile-info", completeProfile);  // New user profile completion
+// Fill user information first time
+// Supports both: 
+// 1. Raw JSON with profileImage URL 
+// 2. Form-data with file upload
+router.post("/profile-info", upload.single("profileImage"), completeProfile);
 
-router.patch("/profile", isAuth, updateProfile);
-
-
-// add GST Number 
-// router.post("/gst", isAuth, addGstNumber);
+// Update profile (with optional profile image update)
+router.patch("/profile-update", isAuth, upload.single("profileImage"), updateProfile);
 
 // ✅ Phone Privacy APIs
 router.get("/phone-privacy", isAuth, getPhonePrivacy);

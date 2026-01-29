@@ -1,5 +1,33 @@
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const { uploadToFirebase, deleteFromFirebase } = require("../utils/firebaseUpload");
+
+/**
+ * HELPER: Generate Unique Username
+ * Automatically generates a unique username from firstName and lastName
+ * Includes: letters, numbers, and underscores
+ * Example: "John Doe" = "john_doe" or "john_doe1", "john_doe2" if taken
+ */
+
+const generateUsername = async () => {
+  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  const generateRandomeLetters = (length = 4) => {
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += letters.charAt(Math.floor(Math.random() * letters.length));
+    }
+    return result;
+  };
+  let username;
+  do {
+    const randomLetters = generateRandomeLetters(4);
+    const randNum = Math.floor(1000 + Math.random() * 9000);
+    username = `${randomLetters}${randNum}`;
+  } while (await User.findOne({ username }));
+
+  return username;
+}
 
 
 // ✅ GET user profile
@@ -30,11 +58,12 @@ exports.getProfile = async (req, res) => {
 /**
  * COMPLETE USER PROFILE (for new users after OTP verification)
  * POST /api/user/profile-info
- * Body: { phone, userType, firstName, lastName, email, profileImage }
+ * Body: { phone, userType, firstName, lastName, email }
+ * File: profileImage (multipart/form-data)
  */
 exports.completeProfile = async (req, res) => {
   try {
-    const { phone, userType, firstName, lastName, email, profileImage } = req.body;
+    const { phone, userType, firstName, lastName, email } = req.body;
 
     // Validation
     if (!phone || !userType || !firstName || !lastName) {
@@ -60,10 +89,46 @@ exports.completeProfile = async (req, res) => {
     }
     const formattedPhone = '+' + cleanPhone;
 
+    // Debug: Log everything received
+    console.log("======= COMPLETE PROFILE REQUEST =======");
+    console.log("Body:", JSON.stringify(req.body, null, 2));
+    console.log("File received:", req.file ? "YES" : "NO");
+    if (req.file) {
+      console.log("File Info:", {
+        fieldname: req.file.fieldname,
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size + " bytes"
+      });
+    }
+    console.log("=========================================");
+
+    // Handle profile image upload to Firebase
+    let profileImageUrl = "";
+
+    if (req.file) {
+      try {
+        console.log("⏳ Uploading to Firebase Storage...");
+        const uploadResult = await uploadToFirebase(req.file, "profile-images");
+        profileImageUrl = uploadResult.url;
+        console.log("✅ Upload successful:", profileImageUrl);
+      } catch (uploadError) {
+        console.error("❌ Firebase upload error:", uploadError.message);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload profile image",
+          error: uploadError.message
+        });
+      }
+    } else {
+      console.log("⚠️ No file received in request");
+    }
+
     // Check if user already exists
     let user = await User.findOne({ phone: formattedPhone });
 
     if (!user) {
+      const username = await generateUsername(firstName, lastName);
       // Create new user
       user = await User.create({
         phone: formattedPhone,
@@ -71,31 +136,46 @@ exports.completeProfile = async (req, res) => {
         firstName,
         lastName,
         email: email || "",
-        profileImage: profileImage || "",
-        name: `${firstName} ${lastName}`
+        profileImage: profileImageUrl,
+        name: `${firstName} ${lastName}`,
+        username
       });
     } else {
       // Update existing user
+      const updateData = {
+        userType,
+        firstName,
+        lastName,
+        email: email || "",
+        name: `${firstName} ${lastName}`
+      };
+
+      // Only update profileImage if new one is uploaded
+      if (profileImageUrl) {
+        // Delete old profile image from Firebase if exists
+        if (user.profileImage) {
+          try {
+            await deleteFromFirebase(user.profileImage);
+          } catch (deleteError) {
+            console.error("Error deleting old profile image:", deleteError);
+          }
+        }
+        updateData.profileImage = profileImageUrl;
+      }
+
       user = await User.findByIdAndUpdate(
         user._id,
-        {
-          userType,
-          firstName,
-          lastName,
-          email: email || "",
-          profileImage: profileImage || "",
-          name: `${firstName} ${lastName}`
-        },
+        updateData,
         { new: true, runValidators: true }
       );
     }
 
     // Generate JWT token
     const token = jwt.sign(
-      { 
-        id: user._id, 
-        phone: user.phone, 
-        role: "USER" 
+      {
+        id: user._id,
+        phone: user.phone,
+        role: "USER"
       },
       process.env.JWT_SECRET,
       { expiresIn: "7d" }
@@ -118,23 +198,62 @@ exports.completeProfile = async (req, res) => {
   }
 };
 
-// ✅ UPDATE user profile
+/**
+ * UPDATE user profile
+ * PATCH /api/user/profile-update
+ * Body: { firstName, lastName, gstNumber }
+ * File: profileImage (optional, multipart/form-data)
+ */
 exports.updateProfile = async (req, res) => {
   try {
-    const { firstName, lastName, gstNumber, profileImage } = req.body;
+    const { firstName, lastName, gstNumber } = req.body;
 
-    const user = await User.findByIdAndUpdate(
-      req.user.id,
-      { firstName, lastName, gstNumber, profileImage },
-      { new: true, runValidators: true }
-    ).select("-__v");
-
-    if (!user) {
+    // Get current user to check for existing profile image
+    const currentUser = await User.findById(req.user.id);
+    if (!currentUser) {
       return res.status(404).json({
         success: false,
         message: "User not found"
       });
     }
+
+    // Build update data
+    const updateData = {
+      firstName,
+      lastName,
+      gstNumber
+      // name: `${firstName} ${lastName}`,
+    };
+
+    // Handle profile image upload to Firebase
+    if (req.file) {
+      try {
+        // Delete old profile image from Firebase if exists
+        if (currentUser.profileImage) {
+          try {
+            await deleteFromFirebase(currentUser.profileImage);
+          } catch (deleteError) {
+            console.error("Error deleting old profile image:", deleteError);
+          }
+        }
+
+        // Upload new image to Firebase
+        const uploadResult = await uploadToFirebase(req.file, "profile-images");
+        updateData.profileImage = uploadResult.url;
+      } catch (uploadError) {
+        console.error("Profile image upload error:", uploadError);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to upload profile image"
+        });
+      }
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      updateData,
+      { new: true, runValidators: true }
+    ).select("-__v");
 
     res.status(200).json({
       success: true,
@@ -149,7 +268,6 @@ exports.updateProfile = async (req, res) => {
     });
   }
 };
-
 
 
 

@@ -246,7 +246,7 @@ const Properties = () => {
                     <div className={`text-sm ${isDark ? 'text-slate-400' : 'text-gray-500'}`}>{p.location?.locality || ""}</div>
                   </td>
                   <td className={`px-6 py-4 font-semibold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                    ₹{(p.pricing?.rentAmount || p.pricing?.salePrice)?.toLocaleString() || "N/A"}
+                    ₹{(p.pricing?.rent?.rentAmount || p.pricing?.salePrice)?.toLocaleString() || "N/A"}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
