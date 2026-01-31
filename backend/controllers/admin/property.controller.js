@@ -10,7 +10,8 @@ exports.getAll = async (req, res) => {
 
     const [properties, total] = await Promise.all([
       Property.find()
-        .select("listingType propertyType propertyCategory pricing location status photos listingScore createdAt")
+        .select("listingType propertyType propertyCategory pricing location status images listingScore createdAt userId isPremium premium description")
+        .populate("userId", "name phone email")
         .sort({
           isPremium: -1,
           "premium.boostRank": -1,
@@ -22,6 +23,12 @@ exports.getAll = async (req, res) => {
 
       Property.countDocuments()
     ]);
+
+    // Debug log
+    console.log("Properties fetched:", properties.length);
+    if (properties.length > 0) {
+      console.log("First property images:", properties[0].images);
+    }
 
     res.json({
       success: true,
@@ -44,22 +51,35 @@ exports.getAll = async (req, res) => {
 
 // 🔹 Admin: single property (details page)
 exports.getOne = async (req, res) => {
-  const property = await Property.findById(req.params.id)
-    .populate("userId", "name phone email");
+  try {
+    const property = await Property.findById(req.params.id)
+      .populate("userId", "name phone email");
 
-  if (!property) {
-    return res.status(404).json({ message: "Property not found" });
+    if (!property) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    // Debug log
+    console.log("Property ID:", req.params.id);
+    console.log("Property Images:", property.images);
+
+    // (future ready) Leads count
+    const leadsCount = await Lead.countDocuments({
+      listingId: property._id
+    });
+
+    res.json({
+      success: true,
+      property,
+      leadsCount
+    });
+  } catch (error) {
+    console.error("ERROR FETCHING PROPERTY:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch property details"
+    });
   }
-
-  // (future ready) Leads count
-  const leadsCount = await Lead.countDocuments({
-    listingId: property._id
-  });
-
-  res.json({
-    property,
-    leadsCount
-  });
 };
 
 // 🔹 Admin: approve / reject / block

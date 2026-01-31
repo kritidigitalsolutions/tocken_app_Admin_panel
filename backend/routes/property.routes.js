@@ -44,6 +44,13 @@ router.post(
   controller.uploadPhotos
 );
 
+// Set primary photo
+router.patch(
+  "/:id/photos/:photoId/primary",
+  auth,
+  controller.setPrimaryPhoto
+);
+
 // Delete photo
 router.delete(
   "/:id/photos/:photoId",

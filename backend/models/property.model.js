@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const furnishingSchema = {
   type: {
     type: String,
-    enum: ["none", "semiFurnished", "fullyFurnished"],
+    // enum: ["none", "semiFurnished", "fullyFurnished"],
     default: "none"
   },
   amenities: [
@@ -28,15 +28,15 @@ const parkingSchema = {
 const areaSchema = {
   builtUp: {
     value: Number,
-    unit: { type: String, enum: ["sqft", "sqm"] }
+    // unit: { type: String, enum: ["sqft", "sqm"] }
   },
   carpet: {
     value: Number,
-    unit: { type: String, enum: ["sqft", "sqm"] }
+    // unit: { type: String, enum: ["sqft", "sqm"] }
   },
   plot: {
     value: Number,
-    unit: { type: String, enum: ["sqft", "sqm"] },
+    // unit: { type: String, enum: ["sqft", "sqm"] },
     length: Number,
     width: Number,
     roadWidth: Number
@@ -56,20 +56,20 @@ const propertySchema = new mongoose.Schema(
 
     listingType: {
       type: String,
-      enum: ["RENT", "SELL", "PG", "CO_LIVING"],
+      // enum: ["RENT", "SELL", "PG", "CO_LIVING"],
       required: true
     },
 
     propertyType: {
       type: String,
-      enum: ["RESIDENTIAL", "COMMERCIAL"]
+      // enum: ["RESIDENTIAL", "COMMERCIAL"]
     },
 
     propertyCategory: String,
 
     status: {
       type: String,
-      enum: ["DRAFT", "ACTIVE", "REJECTED", "BLOCKED"],
+      // enum: ["DRAFT", "ACTIVE", "REJECTED", "BLOCKED"],
       default: "DRAFT"
     },
 
@@ -104,7 +104,7 @@ const propertySchema = new mongoose.Schema(
       coordinates: {
         type: {
           type: String,
-          enum: ["Point"],
+          // enum: ["Point"],
           default: "Point"
         },
         coordinates: {
@@ -124,7 +124,7 @@ const propertySchema = new mongoose.Schema(
       zoneType: String,
       propertyCondition: {
         type: String,
-        enum: ["readyToUse", "bareShell"]
+        // enum: ["readyToUse", "bareShell"]
       },
       constructionStatusOfWall: String,
 
@@ -155,7 +155,7 @@ const propertySchema = new mongoose.Schema(
         // Pantry
         pantry: {
           isAvailable: Boolean,
-          type: { type: String, enum: ["Private", "Shared"] },
+          type: { type: String,},
           size: Number, // in sqft
           unit: String
         },
@@ -203,7 +203,7 @@ const propertySchema = new mongoose.Schema(
       pgName: String,
       pgFor: {
         type: String,
-        enum: ["male", "female", "all"]
+        // enum: ["male", "female", "all"]
       },
       bestSuitedFor: [String],
       totalFloors: Number,
@@ -214,7 +214,7 @@ const propertySchema = new mongoose.Schema(
           roomsAvailable: Number,
           rentAmount: Number,
           securityDepositType: String,
-          month: String,
+          amountOrMonth: Number,
           attachedBathroom: Boolean,
           attachedBalcony: Boolean
         }
@@ -233,7 +233,7 @@ const propertySchema = new mongoose.Schema(
       },
       managedBy: String,
       managerStaysAtPG: Boolean,
-      availableFrom: Date,
+      availableFrom: String,
       includedServices: [String],
       noticePeriod: Number,
       lockInPeriod: String,
@@ -253,27 +253,31 @@ const propertySchema = new mongoose.Schema(
       occupationName: String,
       languages: String,
       hobbies: String,
-
+      lookingToShiftBy: Date,
+      availableFrom: Date,
       bhk: String,
       furnishing: furnishingSchema,
       roomDetails: [String],
       totalFloors: Number,
       yourFloor: Number,
       amenities: [String],
-      rentAmount: Number,
-
+// 
       lookingToShiftBy: Date,
       budgetRange: {
         min: Number,
         max: Number
       },
+// 
       partnerGender: String,
       ageLimit: {
         min: String,
         max: String
       },
       partnerOccupation: [String],
-      availableFrom: Date
+      preferences: [String],
+      instagramLink: String,
+      FacebookLink: String,
+      LinkedInLink: String,
     },
 
     /* ===== PRICING ===== */
@@ -323,17 +327,16 @@ const propertySchema = new mongoose.Schema(
       // only for PG Details
       mealsAvailable: String,
       mealsType: String,
-      mealsAvailableOnWeekend: [String],
       mealsAvailableOnWeekDay: [String],
       mealsAmount: Number,
       // end  PG Details
 
-      addMore: [
+      addMore: 
         {
-          lable: String,
-          amount: Number
+          maintenanceCharge: Number,
+          bookingAmount: Number,
+          otherCharge: Number
         }
-      ]
     },
 
     /* ===== LOCATION ===== */
@@ -361,9 +364,16 @@ const propertySchema = new mongoose.Schema(
 
 
     /* ===== MEDIA ===== */
-    images: [String],
+    images: [
+      {
+        url: String,
+        publicId: String,
+        isPrimary: { type: Boolean, default: false }
+      }
+    ],
 
     description: String,
+    
 
     /* ===== ADMIN ===== */
     listingScore: { type: Number, default: 0 },

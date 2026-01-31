@@ -36,7 +36,7 @@ exports.createDraft = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Property created as draft",
-      data: property
+      data: property.id
     });
   } catch (error) {
     console.error("ERROR CREATING PROPERTY:", error);
@@ -215,19 +215,26 @@ exports.uploadPhotos = async (req, res) => {
       return res.status(400).json({ success: false, message: "No files uploaded" });
     }
 
+    // Initialize images array if not exists
+    if (!property.images) {
+      property.images = [];
+    }
+
     const uploadedPhotos = [];
 
     // Upload each file to Firebase Storage
     for (const file of req.files) {
       const result = await uploadToFirebase(file, "properties");
-      uploadedPhotos.push({
+      const photoData = {
         url: result.url,
-        publicId: result.fileName,  // Store fileName as publicId for deletion
-        isPrimary: property.images.length === 0 && uploadedPhotos.length === 0 // First image is primary
-      });
+        publicId: result.fileName,
+        isPrimary: property.images.length === 0 && uploadedPhotos.length === 0
+      };
+      uploadedPhotos.push(photoData);
     }
 
-    property.images.push(...uploadedPhotos);
+    // Add new photos to existing images
+    property.images = [...property.images, ...uploadedPhotos];
 
     // 🔁 Recalculate listing score
     const score = calculateListingScore(property);
@@ -239,7 +246,11 @@ exports.uploadPhotos = async (req, res) => {
     res.json({
       success: true,
       message: "Photos uploaded successfully to Firebase Storage",
-      images: property.images,
+      data: {
+        images: property.images,
+        totalImages: property.images.length,
+        newlyUploaded: uploadedPhotos.length
+      },
       listingScore: property.listingScore
     });
   } catch (error) {
@@ -262,9 +273,12 @@ exports.deletePhoto = async (req, res) => {
       return res.status(404).json({ success: false, message: "Property not found" });
     }
 
+    // Decode the photoId (URL encoded)
+    const decodedPhotoId = decodeURIComponent(photoId);
+
     // Find the photo to delete by publicId
     const photoIndex = property.images.findIndex(
-      (photo) => photo.publicId === photoId || photo.publicId === decodeURIComponent(photoId)
+      (photo) => photo.publicId === photoId || photo.publicId === decodedPhotoId
     );
 
     if (photoIndex === -1) {
@@ -272,6 +286,7 @@ exports.deletePhoto = async (req, res) => {
     }
 
     const photoToDelete = property.images[photoIndex];
+    const wasPrimary = photoToDelete.isPrimary;
 
     // Delete from Firebase Storage
     if (photoToDelete.publicId) {
@@ -286,6 +301,11 @@ exports.deletePhoto = async (req, res) => {
     // Remove from DB
     property.images.splice(photoIndex, 1);
 
+    // If deleted image was primary and there are more images, make first one primary
+    if (wasPrimary && property.images.length > 0) {
+      property.images[0].isPrimary = true;
+    }
+
     // 🔁 Recalculate score
     const score = calculateListingScore(property);
     property.listingScore = score;
@@ -296,7 +316,10 @@ exports.deletePhoto = async (req, res) => {
     res.json({
       success: true,
       message: "Photo deleted from Firebase Storage",
-      images: property.images,
+      data: {
+        images: property.images,
+        totalImages: property.images.length
+      },
       listingScore: property.listingScore
     });
   } catch (error) {
@@ -304,6 +327,55 @@ exports.deletePhoto = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to delete photo",
+      error: error.message
+    });
+  }
+};
+
+// Set primary photo for property
+exports.setPrimaryPhoto = async (req, res) => {
+  try {
+    const { id, photoId } = req.params;
+
+    const property = await Property.findById(id);
+    if (!property) {
+      return res.status(404).json({ success: false, message: "Property not found" });
+    }
+
+    const decodedPhotoId = decodeURIComponent(photoId);
+
+    // Find the photo to set as primary
+    const photoIndex = property.images.findIndex(
+      (photo) => photo.publicId === photoId || photo.publicId === decodedPhotoId
+    );
+
+    if (photoIndex === -1) {
+      return res.status(404).json({ success: false, message: "Photo not found" });
+    }
+
+    // Remove primary from all photos
+    property.images.forEach(photo => {
+      photo.isPrimary = false;
+    });
+
+    // Set selected photo as primary
+    property.images[photoIndex].isPrimary = true;
+
+    await property.save();
+
+    res.json({
+      success: true,
+      message: "Primary photo updated",
+      data: {
+        images: property.images,
+        primaryImage: property.images[photoIndex]
+      }
+    });
+  } catch (error) {
+    console.error("ERROR SETTING PRIMARY PHOTO:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to set primary photo",
       error: error.message
     });
   }
