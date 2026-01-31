@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { getProperties, getPropertyDetails, updatePropertyStatus, deleteProperty, makePremium, removePremium } from "../../../api/admin.property.api";
 import { useTheme } from "../../../context/ThemeContext";
 import Loader from "../../../components/common/Loader";
@@ -15,15 +14,11 @@ import {
   Phone,
   Mail,
   Calendar,
-  IndianRupee,
-  Star,
-  Eye,
   CheckCircle,
   XCircle,
   Ban,
   Crown,
   Trash2,
-  RotateCcw,
   X,
   ChevronRight,
   MessageCircle,
@@ -32,7 +27,6 @@ import {
 } from "lucide-react";
 
 const Properties = () => {
-  const navigate = useNavigate();
   const { isDark } = useTheme();
   
   // States
